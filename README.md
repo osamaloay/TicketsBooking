@@ -107,6 +107,7 @@ This project is a full-stack web application built using the MERN (MongoDB, Expr
     npm run start
     ```
 
+
 ## Contributing
 
 1.  **Fork the repository.**
@@ -133,4 +134,4 @@ This project is a full-stack web application built using the MERN (MongoDB, Expr
 
 ## License
 
-This project is licensed under the MIT License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
