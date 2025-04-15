@@ -3,7 +3,8 @@ const dotenv = require('dotenv');
 dotenv.config();
 const  express = require('express');
 
-db_uri = process.env.MONGO_URI;
+
+const db_uri = process.env.MONGO_URI;
 if (!db_uri) {
     console.error('DB_URI is not defined in .env file');
     process.exit(1);

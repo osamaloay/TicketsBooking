@@ -33,10 +33,7 @@ app.use(cookieParser());
 
 
 // List of routes 
-app.use('/api/v1/register', AuthROUTE);
-app.use('/api/v1/forgotpassword', AuthROUTE);
-app.use('/api/v1/login', AuthROUTE);
-app.use('/api/v1/logout', AuthROUTE);
+app.use('/api/v1', AuthROUTE);
 
 app.use('/api/v1/users', UserROUTE);
 app.use('/api/v1/events', EventROUTE);
