@@ -19,6 +19,8 @@ const authenicationController = {
             if(existUser){
                 return res.status(400).json({message: "User already exists"});
             } 
+            await sendEmailROUTE.sendOTP(email);
+            
             const hashedPassword = await bycrypt.hash(password, 10);// the 10 is the salt rounds
             const newUser = await userModel.create({
                 name,
@@ -26,6 +28,7 @@ const authenicationController = {
                 password: hashedPassword,
                 role
             });
+            
             const token = jwt.sign({id: newUser._id}, SECRET_KEY, {expiresIn: '1h'});
             res.status(201).json({
                 success: true,
@@ -49,15 +52,8 @@ const authenicationController = {
         if(!user){
             return res.status(400).json({message: "User not found"});
         }
-        const otpGen =  Math.floor(100000 + Math.random() * 900000).toString();
-        const hashedOTP = sendEmailROUTE.hashOTP(otpGen);
-        await otpModel.deleteMany({email: email}); // Delete any existing OTP for the email
-        await otpModel.create({
-            email,
-            otp: hashedOTP,
-            expiresAt: Date.now() + 5 * 60 * 1000 // OTP valid for 5 minutes
-        });
-        await sendEmailROUTE.sendOTP(email, hashedOTP);
+        
+        await sendEmailROUTE.sendOTP(email);
         res.status(200).json({
             success: true,
             message: "OTP sent to your email"
@@ -72,7 +68,7 @@ const authenicationController = {
 }, 
     login : async (req,res)=> {
     const {email, password} = req.body;
-    const user = await findOne({email});
+    const user = await userModel.findOne({email});
     if(!user){
         return res.status(400).json({message: "User not found"});
 
