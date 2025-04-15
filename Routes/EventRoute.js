@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const EventController = require('../controllers/EventController');
-const { authenticate } = require('../middleware/authMiddleware');
-const  authorize  = require('../middleware/authorizeMiddleware');
+const EventController = require('../Controllers/EventController');
+const  authenticate  = require('../Middleware/authMiddleware');
+const  authorize  = require('../Middleware/authorizeMiddleware');
 
 
 
@@ -16,7 +16,7 @@ router.get('/', authenticate, EventController.getAllEvents);
 
 
 
-// get event by id
+// get details event by id
 router.get('/:id', authenticate, EventController.getEventById);
 
 
@@ -26,3 +26,5 @@ router.put('/:id', authenticate, authorize('Organizer', 'Admin'), EventControlle
 
 // delete an event by Organizer or admin 
 router.delete('/:id', authenticate, authorize('Organizer', 'Admin'), EventController.deleteEvent);
+
+module.exports = router;

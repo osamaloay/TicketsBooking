@@ -1,9 +1,9 @@
 const {hashOTP} = require('../utils/MFA');
-const userModel = require('../models/User');
-const otpModel = require('../models/OTP'); // Assuming you have an OTP model to store OTPs
+const userModel = require('../Models/User');
+const otpModel = require('../Models/OTP'); // Assuming you have an OTP model to store OTPs
 const dotenv = require('dotenv');
 const crypto = require('crypto');
-const userModel = require('../models/User');
+
 const jwt = require('jsonwebtoken');
 const SECRET_KEY = process.env.SECRET_KEY;
 dotenv.config();
@@ -22,9 +22,8 @@ const verifyOTPController = {
         }
         await otpModel.deleteMany({ email }); // Delete the OTP after verification
         return res.status(200).json({ message: "OTP verified successfully" });
-
- 
     },
+    
     verrifyOTPForLogin: async (req, res) => {
         const { email, otp } = req.body;
         const otpStored = await otpModel.findOne({ email });

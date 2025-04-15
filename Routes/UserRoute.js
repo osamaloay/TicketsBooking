@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const UserController = require('../controllers/UserController');
-const { authenticate } = require('../middleware/authMiddleware');
-const {authorize} = require('../middleware/authorizationMiddleware');
+const UserController = require('../Controllers/UserController');
+const authenticate  = require('../Middleware/authMiddleware');
+const authorize = require('../Middleware/authorizeMiddleware');
 
 // get all users ("only admin can get all users")
 router.get('/', authenticate, authorize('admin'), UserController.getAllUsers);
@@ -14,7 +14,7 @@ router.get('/users/profile', authenticate, UserController.getUserProfile);
 router.put('/users/profile', authenticate, UserController.updateUserProfile);
 
 // get details of a specific user ("only admin can get user details")
-router.get('/:id', authenticate, authorize('admin'), UserController.updateUser);
+router.get('/:id', authenticate, authorize('admin'), UserController.getUsersDetails);
 
 // update user role ("only admin can update user role")
 router.put('/:id', authenticate, authorize('admin'), UserController.updateUserRole);
@@ -23,7 +23,7 @@ router.put('/:id', authenticate, authorize('admin'), UserController.updateUserRo
 router.delete('/:id', authenticate, authorize('admin'), UserController.deleteUser);
 
 // get current user Booking , it makes more since to let admins and event organizers to see all bookings
-router.get('/booking', authenticate, authorize('Standard User'), UserController.getUserBooking); 
+router.get('/booking', authenticate, authorize('Standard User'), UserController.getUserBooking);  // done implementing
 
 // get current Organizer events 
 router.get('/events', authenticate, authorize('Organizer'), UserController.getUserEvents);
@@ -33,3 +33,4 @@ router.get('/events', authenticate, authorize('Organizer'), UserController.getUs
 router.get('/events/analytics', authenticate, authorize('Organizer'), UserController.getUserEventsAnalytics);
 
 
+module.exports = router;

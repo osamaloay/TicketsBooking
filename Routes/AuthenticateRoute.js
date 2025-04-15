@@ -1,20 +1,20 @@
 // File: Routes/AuthenticateRoute.js
 
-const express = request("express");
+const express = require("express");
 const router = express.Router();
-const { register, login, logout, forgotPassword } = require("../controllers/authController");
-const { isAuthenticated } = require("../middleware/authMiddleware");
+const authController = require("../Controllers/AuthenticationController");
+const  isAuthenticated  = require("../Middleware/authMiddleware");
 
 // Route for user registration
-router.post("/register", register);
+router.post("/register",authController.register);
 // Route for user login
-router.post("/login", login);
+router.post("/login", authController.login);
 // Route for user logout
-router.get("/logout", logout);
+//router.get("/logout", authController.logout);
 // Route for forgot password
-router.post("/forgotpassword", forgotPassword);
+router.post("/forgotpassword", authController.forgotPassword);
 // Route for getting user profile (protected route)
 
-
+module.exports = router;
 
 

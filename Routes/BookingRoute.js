@@ -1,8 +1,8 @@
 const express= require('express');
 const router= express.Router();
-const BookingController= require('../controllers/BookingController');
-const { verifyToken }= require('../middleware/authMiddleware');
-const {authorize} = require('../middleware/authorizeMiddleware');
+const BookingController= require('../Controllers/BookingController');
+const verifyToken = require('../Middleware/authMiddleware');
+const authorize = require('../Middleware/authorizeMiddleware');
 
 // Book a ticket for an event 
 router.post('/', verifyToken , authorize('Standard User'), BookingController.bookTicket);
@@ -13,4 +13,4 @@ router.get('/:id', verifyToken , authorize('Standard User'), BookingController.g
 // cancel a booking by id
 router.delete('/:id', verifyToken , authorize('Standard User'), BookingController.cancelBooking);
 
-
+module.exports= router;

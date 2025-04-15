@@ -1,8 +1,8 @@
 const bycrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const userModel = require('../models/User'); 
+const userModel = require('../Models/User'); 
 const sendEmailROUTE = require('../utils/MFA');
-const otpModel = require('../models/OTP'); // Assuming you have an OTP model to store OTPs
+const otpModel = require('../Models/OTP'); 
 const crypto = require('crypto');
 const dotenv = require('dotenv');
 const { register } = require('module');
@@ -72,7 +72,7 @@ const authenicationController = {
 }, 
     login : async (req,res)=> {
     const {email, password} = req.body;
-    const user = await.findOne({email});
+    const user = await findOne({email});
     if(!user){
         return res.status(400).json({message: "User not found"});
 
@@ -95,5 +95,6 @@ const authenicationController = {
         token
     });
 },
-}
+}; 
+module.exports = authenicationController;
 

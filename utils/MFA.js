@@ -1,7 +1,7 @@
 const nodeMailer = require('nodemailer');
 const crypto = require('crypto');
 const dotenv = require('dotenv');
-const otpModel = require('../models/OTP'); // Assuming you have an OTP model to store OTPs
+const otpModel = require('../Models/OTP'); // Assuming you have an OTP model to store OTPs
 dotenv.config();
 
 
@@ -45,5 +45,5 @@ const sendOTP = async (email)=> {
         }
     });
 }
-mdodule.exports = {sendOTP,hashOTP} ;
+module.exports = {sendOTP,hashOTP} ;
 
