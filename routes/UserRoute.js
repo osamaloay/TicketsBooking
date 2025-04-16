@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { protect, authorize } = require('../Middleware/authMiddleware');
+const { protect, authorize } = require('../middleware/authMiddleware');
 const { 
     getAllUsers,
     getUserById,
@@ -9,7 +9,7 @@ const {
     getUserBookings,
     getUserEvents,
     getUserEventsAnalytics
-} = require('../Controllers/UserController');
+} = require('../controllers/UserController');
 
 // Admin routes
 router.get('/users', protect, authorize('System Admin'), getAllUsers);//get all users

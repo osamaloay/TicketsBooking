@@ -1,7 +1,11 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-
+//Returns 401 Unauthorized if:
+//1-No token provided
+//2-invalid token
+//3-expired token
+//4-no user found
 const protect = async (req, res, next) => {
   let token;
   if (
@@ -21,7 +25,8 @@ const protect = async (req, res, next) => {
   }
 };
 
-// Role-based middleware
+//Returns 403 Forbidden if:   
+//1-User doesn't have the required role
 const authorize = (...roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
