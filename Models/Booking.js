@@ -1,3 +1,4 @@
+
 const mongoose = require('mongoose');
 
 const bookingSchema = new mongoose.Schema({
@@ -8,4 +9,6 @@ const bookingSchema = new mongoose.Schema({
     status: { type: String, enum: ['pending', 'confirmed', 'canceled'], required: true, default: 'pending' },
 }, { timestamps: true });
 
+
 module.exports = mongoose.model('Booking', bookingSchema);
+

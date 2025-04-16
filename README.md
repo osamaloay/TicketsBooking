@@ -98,6 +98,3 @@ This project is a **MERN stack** web application for an **online event ticketing
 ## License
 
 This project is licensed under the **MIT License**.
-
-
-

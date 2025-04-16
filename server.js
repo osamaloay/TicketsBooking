@@ -1,29 +1,62 @@
-const express = require('express');
-const cors = require('cors');
+// imports and dependencies
+const express = require('express'); 
+const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const connectDB = require('./config/db');
-const authRoutes = require('./Routes/AuthenticateRoute');
-const eventRoutes = require('./Routes/EventRoute');
-const userRoutes = require('./Routes/UserRoute');
-const bookingRoutes = require('./Routes/BookingRoute');
+const cors = require('cors');
+const path = require('path');
+const connectDB = require('./config/db'); // Assuming db.js is in the config folder
+const cookieParser = require('cookie-parser');
+const EventROUTE = require('./Routes/EventRoute'); 
+const BookingROUTE= require('./Routes/BookingRoute'); 
+const UserROUTE = require('./Routes/UserRoute'); 
+const AuthROUTE = require('./Routes/AuthenticateRoute'); 
+const verifyOTPROUTE = require('./Routes/OTPROUTES');
 
-dotenv.config();
 
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-
+// Connect to MongoDB
 connectDB();
 
-// All routes under /api/v1
-app.use('/api/v1', authRoutes);
-app.use('/api/v1', eventRoutes);
-app.use('/api/v1', userRoutes);
-app.use('/api/v1', bookingRoutes);
+const app = express();
+dotenv.config();
+app.use(express.json());
 
-const PORT = process.env.PORT || 5001;
+app.use(express.urlencoded({ extended: true }));
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+app.use(cors({
+    origin: process.env.ORIGIN,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+}));
+
+app.use(cookieParser());
+
+
+// List of routes 
+app.use('/api/v1', AuthROUTE);
+
+app.use('/api/v1/users', UserROUTE);
+app.use('/api/v1/events', EventROUTE);
+app.use('/api/v1/bookings', BookingROUTE);
+
+app.use('/api/v1/otp', verifyOTPROUTE);
+
+
+
+// server port 
+const PORT = process.env.PORT || 5000;
+
+
+
+
+ 
+
+
+
+
+
+
+
+//start server
+app.listen(PORT, () => { 
+    console.log(`Server is running on port ${PORT}`);
 });

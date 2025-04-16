@@ -1,22 +1,32 @@
 const express = require('express');
 const router = express.Router();
-const { protect, authorize } = require('../Middleware/authMiddleware');
-const { getAllEvents, getEventById, createEvent, updateEvent, deleteEvent,
-    getOrganizerEventsAnalytics, updateEventStatus } = require('../Controllers/EventController');
 
-// Public routes
-router.get('/events', getAllEvents);
-router.get('/events/:id', getEventById);
+const EventController = require('../Controllers/EventController');
+const  authenticate  = require('../Middleware/authMiddleware');
+const  authorize  = require('../Middleware/authorizeMiddleware');
 
-// Routes for Organizer to create event
-router.post('/events', protect, authorize('Organizer'), createEvent);
-router.get('/events/analytics', protect, authorize('Organizer'), getOrganizerEventsAnalytics);
 
-// Routes for Admin to update event status
-router.put('/events/:id/status', protect, authorize('System Admin'), updateEventStatus);
 
-//Routes for Admins and Organizers
-router.put('/events/:id', protect, authorize('Organizer', 'System Admin'), updateEvent);
-router.delete('/events/:id', protect, authorize('Organizer', 'System Admin'), deleteEvent);
+// create new event by Organizer
+router.post('/', authenticate, authorize('Organizer'), EventController.createEvent);
+
+
+
+// get all events
+router.get('/', authenticate, EventController.getAllEvents);
+
+
+
+// get details event by id
+router.get('/:id', authenticate, EventController.getEventById);
+
+
+// update an event by organizer or admin 
+router.put('/:id', authenticate, authorize('Organizer', 'Admin'), EventController.updateEvent);
+
+
+// delete an event by Organizer or admin 
+router.delete('/:id', authenticate, authorize('Organizer', 'Admin'), EventController.deleteEvent);
+
 
 module.exports = router;
