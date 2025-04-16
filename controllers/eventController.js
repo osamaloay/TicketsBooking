@@ -1,5 +1,5 @@
-const Event = require('../models/Events');
-const Booking = require('../models/Booking');
+const Event = require('../Models/Events');
+const Booking = require('../Models/Booking');
 
 // Get all events (public access)
 const getAllEvents = async (req, res) => {

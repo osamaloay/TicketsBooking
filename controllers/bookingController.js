@@ -1,5 +1,5 @@
-const Booking = require('../models/Booking');
-const Event = require('../models/Events');
+const Booking = require('../Models/Booking');
+const Event = require('../Models/Events');
 
 // Create a new booking
 const createBooking = async (req, res) => {

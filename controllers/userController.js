@@ -1,6 +1,6 @@
-const User = require('../models/User');
-const Event = require('../models/Events');
-const Booking = require('../models/Booking');
+const User = require('../Models/User');
+const Event = require('../Models/Events');
+const Booking = require('../Models/Booking');
 
 // Get all users (Admin only)
 const getAllUsers = async (req, res) => {
