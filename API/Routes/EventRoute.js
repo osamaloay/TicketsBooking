@@ -12,7 +12,11 @@ router.post('/', authenticate, authorize('Organizer'), EventController.createEve
 
 
 // get all events
-router.get('/', authenticate, EventController.getAllEvents);
+router.get('/', authenticate, EventController.getApprovedEvents);
+// get all events by organizer
+router.get('/all', authenticate, authorize('System Admin'), EventController.getAllEvents);
+
+
 
 
 
