@@ -222,17 +222,39 @@ Content-Type: application/json
 
 {
     "email": "omansour570@gmail.com", 
-    "otp" : "812394"
+    "otp" : "383645"
 }
 
 ### 
 POST http://localhost:5000/api/v1/bookings
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2YmM0NmRiNTM1MzVmYzE2YTI3NyIsImlhdCI6MTc0NTI1MTM3NSwiZXhwIjoxNzQ1MjU0OTc1fQ.Lt3kLcB6e0HVoUmJFtc_hwk12uVOlPgSlfzTEmmQ-vc
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2YmM0NmRiNTM1MzVmYzE2YTI3NyIsImlhdCI6MTc0NTI1MzQxOCwiZXhwIjoxNzQ1MjU3MDE4fQ.4sGHOhONzZ5tivY8Qzd6_5ohtq9KfgKSzZj0LA36KuY
 
 {
     "user": "68066bc46db53535fc16a277",
     "event": "68066a5f9d39f187d8cbdc0e",
     "numberOfTickets": "2"
+}
+### Book Ticket Request
+POST http://localhost:5000/api/v1/bookings
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2YmM0NmRiNTM1MzVmYzE2YTI3NyIsImlhdCI6MTc0NTI1ODI4OCwiZXhwIjoxNzQ1MjYxODg4fQ.BMNYKFmp7j9rve_n1-RI4vDI98CiIyeYwIWj4ywJvL4
+
+{
+  "event": "680669459d39f187d8cbdc04",
+  "user": "68066bc46db53535fc16a277",
+  "numberOfTickets": "2",
+  "paymentMethodId": "pm_card_visa"
+}
+
+
+
+###
+GET http://localhost:5000/api/v1/events
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2YmM0NmRiNTM1MzVmYzE2YTI3NyIsImlhdCI6MTc0NTI1ODI4OCwiZXhwIjoxNzQ1MjYxODg4fQ.BMNYKFmp7j9rve_n1-RI4vDI98CiIyeYwIWj4ywJvL4
+
+{
+
 }
 
