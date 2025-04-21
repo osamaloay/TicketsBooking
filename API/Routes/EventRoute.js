@@ -21,10 +21,10 @@ router.get('/:id', authenticate, EventController.getEventById);
 
 
 // update an event by organizer or admin 
-router.put('/:id', authenticate, authorize('Organizer', 'Admin'), EventController.updateEvent);
+router.put('/:id', authenticate, authorize('Organizer', 'System Admin'), EventController.updateEvent);
 
 
 // delete an event by Organizer or admin 
-router.delete('/:id', authenticate, authorize('Organizer', 'Admin'), EventController.deleteEvent);
+router.delete('/:id', authenticate, authorize('Organizer', 'System Admin'), EventController.deleteEvent);
 
 module.exports = router;

@@ -24,7 +24,7 @@ Content-Type: application/json
 
 {
     "email" : "osamaloayyy@gmail.com", 
-    "password" : "12345678"
+    "password" : "chingchong"
 }
 
 ### 
@@ -33,7 +33,7 @@ Content-Type: application/json
 
 {
     "email" : "osamaloayyy@gmail.com" , 
-    "otp" : "680413"
+    "otp" : "868515"
 }
 
 ### 
@@ -50,7 +50,47 @@ Content-Type: application/json
 {
     "email": "osamaloayyy@gmail.com", 
     "newPassword" : "chingchong",
-    "otp" : "445522"
+    "otp" : "124609"
 }
 
+
+### 
+GET http://localhost:5000/api/v1/users/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY0YTVmNjBkZTkwZTk2N2M1ODE1ZiIsImlhdCI6MTc0NTI0Njc1OCwiZXhwIjoxNzQ1MjUwMzU4fQ.bYRIutKfxxalGr0KUK7figok5j4952UGcv8YWweb6yo
+
+
+{
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY0YTVmNjBkZTkwZTk2N2M1ODE1ZiIsImlhdCI6MTc0NTI0Njc1OCwiZXhwIjoxNzQ1MjUwMzU4fQ.bYRIutKfxxalGr0KUK7figok5j4952UGcv8YWweb6yo",
+  "user": {
+    "id": "68064a5f60de90e967c5815f",
+    "name": "osama loay",
+    "email": "osamaloayyy@gmail.com",
+    "role": "System Admin"
+  }
+}
+
+### 
+GET http://localhost:5000/api/v1/users/68064a5f60de90e967c5815f
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY0YTVmNjBkZTkwZTk2N2M1ODE1ZiIsImlhdCI6MTc0NTI0Njc1OCwiZXhwIjoxNzQ1MjUwMzU4fQ.bYRIutKfxxalGr0KUK7figok5j4952UGcv8YWweb6yo
+
+{
+
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY0YTVmNjBkZTkwZTk2N2M1ODE1ZiIsImlhdCI6MTc0NTI0Njc1OCwiZXhwIjoxNzQ1MjUwMzU4fQ.bYRIutKfxxalGr0KUK7figok5j4952UGcv8YWweb6yo",
+    "user": { 
+    "id": "68064a5f60de90e967c5815f",
+    "name": "osama loay",
+    "email": "osamaloayyy@gmail.com",
+    "role": "System Admin"
+    }
+}
+### 
+PUT http://localhost:5000/api/v1/users/68064a5f60de90e967c5815f
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY0YTVmNjBkZTkwZTk2N2M1ODE1ZiIsImlhdCI6MTc0NTI0Njc1OCwiZXhwIjoxNzQ1MjUwMzU4fQ.bYRIutKfxxalGr0KUK7figok5j4952UGcv8YWweb6yo
+
+{
+    
+}
 
