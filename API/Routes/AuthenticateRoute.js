@@ -5,6 +5,9 @@ const router = express.Router();
 const authController = require("../Controllers/AuthenticationController");
 const  isAuthenticated  = require("../Middleware/authMiddleware");
 
+
+
+
 // Route for user registration
 router.post("/register",authController.register);
 // Route for user login

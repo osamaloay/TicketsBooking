@@ -1,0 +1,56 @@
+###
+POST http://localhost:5000/api/v1/register
+Content-Type : application/json
+
+{ 
+    "name" : "osama loay", 
+    "email": "osamaloayyy@gmail.com", 
+    "password": "12345678",
+    "role": "System Admin"
+}
+###
+
+POST http://localhost:5000/api/v1/otp/verify/register
+Content-Type: application/json 
+
+{
+    "email" : "osamaloayyy@gmail.com" , 
+    "otp" : "846734"
+}
+
+### 
+POST http://localhost:5000/api/v1/login
+Content-Type: application/json 
+
+{
+    "email" : "osamaloayyy@gmail.com", 
+    "password" : "12345678"
+}
+
+### 
+POST http://localhost:5000/api/v1/otp/verify/login
+Content-Type: application/json 
+
+{
+    "email" : "osamaloayyy@gmail.com" , 
+    "otp" : "680413"
+}
+
+### 
+POST http://localhost:5000/api/v1/forgotpassword
+Content-Type: application/json 
+
+{
+    "email":"osamaloayyy@gmail.com"
+}
+###
+POST http://localhost:5000/api/v1/otp/verify/forgot
+Content-Type: application/json 
+
+{
+    "email": "osamaloayyy@gmail.com", 
+    "newPassword" : "chingchong",
+    "otp" : "445522"
+}
+
+

@@ -7,6 +7,9 @@ const crypto = require('crypto');
 const dotenv = require('dotenv');
 const { register } = require('module');
 const { send } = require('process');
+const verify = require('../Controllers/verifyOTPController');
+const tempUsers = require('../utils/tempUsersStore');
+const redisClient = require('../utils/redisClient');
 dotenv.config();
 
 const SECRET_KEY = process.env.SECRET_KEY;
@@ -20,27 +23,26 @@ const authenicationController = {
                 return res.status(400).json({message: "User already exists"});
             } 
             await sendEmailROUTE.sendOTP(email);
+           
             
             const hashedPassword = await bycrypt.hash(password, 10);// the 10 is the salt rounds
-            const newUser = await userModel.create({
+            tempUsers.set(email, {
+                name,
+                password: hashedPassword,
+                role,
+              });
+          
+            
+              const tempUser = {
                 name,
                 email,
                 password: hashedPassword,
-                role
-            });
-            
-            const token = jwt.sign({id: newUser._id}, SECRET_KEY, {expiresIn: '1h'});
-            res.status(201).json({
-                success: true,
-                message: "User registered successfully",
-                user: {
-                    id: newUser._id,
-                    name: newUser.name,
-                    email: newUser.email,
-                    role: newUser.role
-                },
-                token
-            });
+                role,
+              };
+              
+              // Store in Redis for 5 minutes (300 seconds)
+              await redisClient.set(`register:${email}`, JSON.stringify(tempUser), { EX: 300 });
+              
         }catch(error){
 
         }
@@ -54,10 +56,10 @@ const authenicationController = {
         }
         
         await sendEmailROUTE.sendOTP(email);
-        res.status(200).json({
-            success: true,
-            message: "OTP sent to your email"
-        });
+        await redisClient.set(`forgot:${email}`, JSON.stringify({ id: user._id }), { EX: 300 });
+
+        res.status(200).json({ message: "OTP sent" });
+    
     }catch(error){
         console.log(error);
         res.status(500).json({
@@ -78,18 +80,12 @@ const authenicationController = {
         return res.status(400).json({message: "Invalid credentials"});
     }
     await sendEmailROUTE.sendOTP(email);
-    const token = jwt.sign({id: user._id}, SECRET_KEY, {expiresIn: '1h'});
-    res.status(200).json({
-        success: true,
-        message: "User logged in successfully",
-        user: {
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            role: user.role
-        },
-        token
-    });
+    // Store in Redis for 5 minutes (300 seconds)
+    await redisClient.set(`login:${email}`, JSON.stringify({ id: user._id }), { EX: 300 });
+
+  res.status(200).json({ message: "OTP sent to email" });
+    
+    
 },
 }; 
 module.exports = authenicationController;
