@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-# TicketsBooking
-A full-stack MERN web application for event ticketing, allowing users to browse, book, and manage events. Features include role-based access, a booking system, and admin controls. Built with React, Node.js, Express, and MongoDB
-=======
 # Event Ticketing System
 
 ## Overview
@@ -102,7 +98,3 @@ This project is a **MERN stack** web application for an **online event ticketing
 ## License
 
 This project is licensed under the **MIT License**.
-
-
-
->>>>>>> b5f3e3f27d0ca96a2a8881ff7dd5df4b15c03bbc

@@ -1,0 +1,38 @@
+{
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.13.2",
+    "nodejs": "^0.0.0",
+    "nodemailer": "^6.10.1",
+    "nodemon": "^3.1.9",
+    "openssl": "^2.0.0",
+    "pdfkit": "^0.17.0",
+    "qrcode": "^1.5.4",
+    "redis": "^4.7.0",
+    "ssl": "^1.0.0"
+  },
+  "name": "swe-project",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon ./server.js "
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/osamaloay/TicketsBooking.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/osamaloay/TicketsBooking/issues"
+  },
+  "homepage": "https://github.com/osamaloay/TicketsBooking#readme",
+  "description": ""
+}
