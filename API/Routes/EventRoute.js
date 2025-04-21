@@ -12,16 +12,18 @@ router.post('/', authenticate, authorize('Organizer'), EventController.createEve
 
 
 // get all events
-router.get('/', authenticate, EventController.getAllEvents);
+
+router.get('/', EventController.getAllEventsApproved);
+router.get('/all', authenticate, authorize('System Admin'),EventController.getAllEvents);
 
 
 
 // get details event by id
-router.get('/:id', authenticate, EventController.getEventById);
+router.get('/:id', EventController.getEventById);
 
 
 // update an event by organizer or admin 
-router.put('/:id', authenticate, authorize('Organizer', 'System Admin'), EventController.updateEvent);
+router.put('/:id', authenticate, authorize('System Admin', 'Organizer'), EventController.updateEvent); 
 
 
 // delete an event by Organizer or admin 

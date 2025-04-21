@@ -17,6 +17,19 @@ const EventController = {
     getAllEvents: async (req, res) => {
         try {
             const events = await eventModel.find();
+            if(!events)
+                return res.status(404).json({message:"No events found"})
+            res.status(200).json(events);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    }
+    ,
+    getAllEventsApproved: async (req, res) => {
+        try {
+            const events = await eventModel.find({status:"Approved"});
+            if(!events)
+                return res.status(404).json({message:"No events found"})
             res.status(200).json(events);
         } catch (error) {
             res.status(500).json({ message: error.message });
@@ -24,33 +37,39 @@ const EventController = {
     }
     ,
     getEventById: async (req, res) => {
-        try {
-            const event = await eventModel.findById(req.params.id);
-            if (!event) {
-                return res.status(404).json({ message: 'Event not found' });
-            }
-            res.status(200).json(event);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
-    updateEvent : async (req, res) => {
-        try { 
-            const { id } = req.params;
-            const { ...updateData } = req.body;
-           
-            const updatedEvent = await eventModel.findById(id);
-            if (!updatedEvent) {
-                return res.status(404).json({ message: 'Event not found' });
-            }
-            
-            await findOneAndUpdate({ _id: id }, updateData, { new: true });
-            res.status(200).json(updatedEvent);
-        }
-        catch (error) {
-            res.status(500).json({ message: error.message });
+        try 
+        {
+            const event = await eventModel.findById(req.params.id); 
+            if (!event) 
+                {
+                return res.status(404).json({ message: 'Event not found' });}
+            res.status(200).json(event); 
+        } catch (error) 
+        {
+            res.status(500).json({ message: error.message });  
         }
     }, 
+    updateEvent : async (req, res) => { 
+        try 
+        { 
+            const { id } = req.params; 
+            const { ...updateData } = req.body;  
+           
+            const updatedEvent = await eventModel.findById(id); 
+            if (!updatedEvent) 
+                {
+
+                return res.status(404).json({ message: 'Event not found' }); 
+            } 
+            
+            await findOneAndUpdate({ _id: id }, updateData, { new: true }); 
+            res.status(200).json(updatedEvent); 
+        }
+        catch (error) 
+        {
+            res.status(500).json({ message: error.message }); 
+        } 
+    },  
     deleteEvent: async (req, res) => {
         try {
             const event = await eventModel.findByIdAndDelete(req.params.id);
