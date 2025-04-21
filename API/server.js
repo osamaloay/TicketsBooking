@@ -32,6 +32,8 @@ app.use(cors({
 }));
 
 app.use(cookieParser());
+app.use('/tickets', express.static(path.join(__dirname, 'tickets')));
+
 
 
 // List of routes 
