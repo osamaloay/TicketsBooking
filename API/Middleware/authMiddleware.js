@@ -1,4 +1,5 @@
 // middleware/authMiddleware.js
+// Naif's edit to update 
 const jwt = require('jsonwebtoken');
 const User = require('../Models/User');
 
