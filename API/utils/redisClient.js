@@ -1,25 +1,23 @@
 // utils/redisClient.js
-const { createClient } = require('redis');
-
-const client = createClient({
-  username: process.env.REDIS_USERNAME,
-  password: process.env.REDIS_PASSWORD,
-  socket: {
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
+// Mock Redis client for development without Redis
+const mockClient = {
+  connect: async () => {
+    console.log('ℹ️ Using in-memory storage (Redis is disabled)');
+    return true;
+  },
+  set: async (key, value) => {
+    console.log(`ℹ️ In-memory storage: Setting ${key}`);
+    return true;
+  },
+  get: async (key) => {
+    console.log(`ℹ️ In-memory storage: Getting ${key}`);
+    return null;
+  },
+  del: async (key) => {
+    console.log(`ℹ️ In-memory storage: Deleting ${key}`);
+    return true;
   }
-});
+};
 
-client.on('error', (err) => console.error('❌ Redis Client Error:', err));
-
-// Connect only once
-(async () => {
-  try {
-    await client.connect();
-    console.log('✅ Redis connected successfully');
-  } catch (err) {
-    console.error('❌ Redis connection failed:', err);
-  }
-})();
-
-module.exports = client;
+// Export mock client directly
+module.exports = mockClient;

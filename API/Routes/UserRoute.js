@@ -32,5 +32,7 @@ router.get('/events', authenticate, authorize('Organizer'), UserController.getUs
 // get analyics of current Organizer events
 router.get('/events/analytics', authenticate, authorize('Organizer'), UserController.getUserEventsAnalytics);
 
+// get admin dashboard statistics
+router.get('/admin/stats', authenticate, authorize('System Admin'), UserController.getAdminStats);
 
 module.exports = router;

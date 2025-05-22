@@ -1,0 +1,138 @@
+.event-details {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.event-header {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.event-image {
+  width: 400px;
+  height: 300px;
+  object-fit: cover;
+}
+
+.event-info {
+  padding: 2rem;
+  flex: 1;
+}
+
+.event-info h1 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.event-date,
+.event-location,
+.event-price {
+  margin: 0.5rem 0;
+  color: #666;
+}
+
+.event-price {
+  font-size: 1.5rem;
+  color: #2ecc71;
+  font-weight: 600;
+}
+
+.event-description {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.event-description h2 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.event-actions {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.buy-ticket-button {
+  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  font-size: 1.1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  font-weight: 600;
+}
+
+.buy-ticket-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(46, 204, 113, 0.2);
+}
+
+.event-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.detail-item {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.detail-item h3 {
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+}
+
+.detail-item p {
+  color: #666;
+  margin: 0.5rem 0;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.error {
+  text-align: center;
+  padding: 2rem;
+  color: #e74c3c;
+  font-size: 1.2rem;
+}
+
+@media (max-width: 768px) {
+  .event-header {
+    flex-direction: column;
+  }
+
+  .event-image {
+    width: 100%;
+    height: 200px;
+  }
+
+  .event-info {
+    padding: 1rem;
+  }
+
+  .event-details-grid {
+    grid-template-columns: 1fr;
+  }
+} 

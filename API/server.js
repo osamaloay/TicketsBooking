@@ -1,4 +1,3 @@
-
 // imports and dependencies
 const express = require('express'); 
 const mongoose = require('mongoose');
@@ -26,7 +25,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors({
-    origin: process.env.ORIGIN,
+    origin: process.env.ORIGIN || 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 }));
@@ -37,7 +36,7 @@ app.use('/tickets', express.static(path.join(__dirname, 'tickets')));
 
 
 // List of routes 
-app.use('/api/v1', AuthROUTE);
+app.use('/api/v1/auth', AuthROUTE);
 
 app.use('/api/v1/users', UserROUTE);
 app.use('/api/v1/events', EventROUTE);

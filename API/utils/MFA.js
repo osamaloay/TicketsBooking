@@ -32,7 +32,7 @@ const sendOTP = async (email)=> {
     });
 
     const mailOptions = { 
-        from : `Ticketiez : <${process.env.EMAIL_USER}>`,
+        from : `TicketNest <${process.env.EMAIL_USER}>`,
         to : email,
         subject : 'Your OTP for MFA',
         text : `Your OTP is ${otp}. It is valid for 5 minutes.`
