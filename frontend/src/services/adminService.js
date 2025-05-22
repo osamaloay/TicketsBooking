@@ -5,10 +5,10 @@ const adminService = {
   // Get platform-wide statistics
   getStats: async () => {
     try {
-      console.log('Making request to:', `${API_URL}${ENDPOINTS.ADMIN.STATS}`);
+      console.log('Making request to:', `${API_URL}${ENDPOINTS.USERS.ADMIN_STATS}`);
       console.log('Auth token:', localStorage.getItem('token'));
       
-      const response = await axios.get(`${API_URL}${ENDPOINTS.ADMIN.STATS}`, {
+      const response = await axios.get(`${API_URL}${ENDPOINTS.USERS.ADMIN_STATS}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Accept': 'application/json'
@@ -29,9 +29,9 @@ const adminService = {
     try {
       const token = localStorage.getItem('token');
       console.log('Token available:', !!token);
-      console.log('Making request to:', `${API_URL}/users`);
+      console.log('Making request to:', `${API_URL}${ENDPOINTS.USERS.BASE}`);
       
-      const response = await axios.get(`${API_URL}/users`, {
+      const response = await axios.get(`${API_URL}${ENDPOINTS.USERS.BASE}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Accept': 'application/json'
@@ -58,7 +58,7 @@ const adminService = {
   // Get recent events
   getRecentEvents: async () => {
     try {
-      const response = await axios.get(`${API_URL}/admin/events/recent`, {
+      const response = await axios.get(`${API_URL}${ENDPOINTS.EVENTS.ALL}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Accept': 'application/json'
@@ -73,7 +73,7 @@ const adminService = {
   // Create a new user
   createUser: async (userData) => {
     try {
-      const response = await axios.post(`${API_URL}/admin/users`, userData, {
+      const response = await axios.post(`${API_URL}${ENDPOINTS.USERS.CREATE}`, userData, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Accept': 'application/json',
@@ -89,7 +89,7 @@ const adminService = {
   // Get user details
   getUserDetails: async (userId) => {
     try {
-      const response = await axios.get(`${API_URL}/admin/users/${userId}`, {
+      const response = await axios.get(`${API_URL}${ENDPOINTS.USERS.DETAILS(userId)}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Accept': 'application/json'
@@ -104,7 +104,7 @@ const adminService = {
   // Get event details
   getEventDetails: async (eventId) => {
     try {
-      const response = await axios.get(`${API_URL}/admin/events/${eventId}`, {
+      const response = await axios.get(`${API_URL}${ENDPOINTS.EVENTS.DETAILS(eventId)}`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
           'Accept': 'application/json'
@@ -132,6 +132,7 @@ const adminService = {
     }
   },
 
+  // Delete user
   deleteUser: async (userId) => {
     try {
       const token = localStorage.getItem('token');
@@ -139,7 +140,7 @@ const adminService = {
         throw new Error('No authentication token found');
       }
 
-      const response = await axios.delete(`${API_URL}/users/${userId}`, {
+      const response = await axios.delete(`${API_URL}${ENDPOINTS.USERS.DELETE(userId)}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }

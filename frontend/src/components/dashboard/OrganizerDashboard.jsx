@@ -241,6 +241,9 @@ const OrganizerDashboard = () => {
                   {event.status !== 'rejected' && (
                     <button onClick={() => handleEditEvent(event._id)}>Edit</button>
                   )}
+                  {event.status === 'approved' && (
+                    <button onClick={() => handleViewAnalytics(event._id)}>View Analytics</button>
+                  )}
                   <button 
                     className="delete-button"
                     onClick={() => handleDeleteEvent(event._id)}
