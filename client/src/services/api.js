@@ -1,0 +1,293 @@
+import axios from 'axios';
+
+const api = axios.create({
+    baseURL: 'http://localhost:5000/api/v1',
+    withCredentials: true,
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    
+});
+
+// handle error
+const handleError = (error) => {
+    if (error.response) {
+      // Server responded with a status outside 2xx
+      return Promise.reject(error.response.data.message || 'Something went wrong');
+    } else if (error.request) {
+      // No response received
+      return Promise.reject('No response from server');
+    } else {
+      // Other errors
+      return Promise.reject(error.message);
+    }
+  };
+
+// Auth services
+export const authService = {
+    login: async (credentials) => {
+        try {
+            const response = await api.post('/login', credentials);
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+    register: async (userData) => {
+        try {
+            const response = await api.post('/register', userData);
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+    logout: async () => {
+        try {
+            const response = await api.post('/logout');
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+    forgotPassword: async (email) => {
+        try {
+            const response = await api.post('/forgotpassword', { email });
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+    verifyOTPLogin: async (otpData) => {
+        try {
+            const response = await api.post('/otp/verify/login', otpData);
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+    verifyOTPRegister: async (otpData) => {
+        try {
+            const response = await api.post('/otp/verify/register', otpData);
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+    verifyOTPForgotPassword: async (otpData) => {
+        try {
+            const response = await api.post('/otp/verify/forgot', otpData);
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    }   
+};
+
+
+export const userService = {
+     // get all users done ✅
+   getAllUsers: async () => {
+    try {
+        const response = await api.get('/users');
+        return response.data;
+    } catch (error) {
+        return handleError(error);
+    }
+   },
+   // get current user profile done ✅
+    getUserProfile: async () => {
+        try {
+            const response = await api.get('/users/profile');
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+    // update current user profile done ✅
+    updateUserProfile: async (userData) => {
+        try {
+            const response = await api.put('/users/profile', userData);
+            return response.data;
+        } catch (error) {   
+            return handleError(error);
+        }
+    },
+    // get details of a specific user done ✅
+    getUserDetails: async (id) => {
+        try {
+            const response = await api.get(`/users/${id}`);
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+    // update user role done ✅
+    updateUserRole: async (id, role) => {
+        try {
+            const response = await api.put(`/users/${id}`, { role });
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+    // delete user done ✅
+    deleteUser: async (id) => {
+        try {
+            const response = await api.delete(`/users/${id}`);
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+    
+  
+    // get current user bookings done ✅
+    getUserBookings: async () => {
+        try {
+            const response = await api.get('/users/bookings');
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+   // get organizer events done ✅
+   getOrganizerEvents: async () => {
+    try {
+        const response = await api.get('/users/events');
+        return response.data;
+    } catch (error) {
+        return handleError(error);
+    }
+   },
+   // get organizer events analytics done ✅
+   getOrganizerEventsAnalytics: async () => {
+    try {
+        const response = await api.get('/users/events/analytics');
+        return response.data;
+    } catch (error) {
+        return handleError(error);
+    }
+   }, 
+
+
+  
+};
+
+export const bookingService = {
+    // create booking done ✅
+    createBooking: async (bookingData) => {
+        try {
+            const response = await api.post('/bookings/', bookingData);
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+    // get booking by id done ✅
+    getBookingById: async (id) => {
+        try {
+            const response = await api.get(`/bookings/${id}`);
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+    // cancel booking by id done ✅
+    cancelBooking: async (id) => {
+        try {
+            const response = await api.delete(`/bookings/${id}`);
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    }
+  
+};
+export const eventService = {
+    // create new event by organizer done ✅
+    createEvent: async (eventData) => {
+        try {
+            const response = await api.post('/events/', eventData);
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+    // get list of approved events done ✅
+    getAllApprovedEvents: async () => {
+        try {
+            const response = await api.get('/events/');
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+    // get list of all events (admin only) done ✅
+    getAllEvents: async () => {
+        try {
+            const response = await api.get('/events/all');
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+    // get details of an event by id done ✅
+    getEventById: async (id) => {
+        try {
+            const response = await api.get(`/events/${id}`);
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+    // update event details by admin or organizer done ✅
+    updateEventById : async (id,eventData) => { 
+        try { 
+            const response = await api.put(`/events/${id}`,eventData);
+            return response.data; 
+        }
+        catch(error){ 
+            return handleError(error);
+        }
+    }, 
+    // DELETE event by id (admin or organizer only ) done ✅ 
+    deleteEventById : async (id) => { 
+        try { 
+            const response = await api.delete(`/events/${id}`); 
+            return response.data; 
+        }
+        catch (error){
+            return handleError(error);
+        }
+    } 
+}; 
+
+
+
+
+// Add request interceptor to include auth token
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
+// Add response interceptor for error handling
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            // Handle unauthorized access
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
+
+
+
+
+export default api; 
