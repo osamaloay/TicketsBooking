@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const QRCode = require('qrcode');
 const nodemailer = require('nodemailer');
 const userModel = require('../Models/User');
-
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // Initialize Stripe with your secret key
 
 const transporter = nodemailer.createTransport({
     service: 'gmail', 
@@ -24,11 +24,13 @@ const transporter = nodemailer.createTransport({
 const BookingController = {
     // Book tickets for an event
     bookTicket: async (req, res) => {
+        const session = await mongoose.startSession();
+        session.startTransaction();
         try {
-          const { event, user, numberOfTickets } = req.body;
+          const { event, user, numberOfTickets, paymentMethodId  } = req.body;
     
           // Fetch the event from the database
-          const eventInstance = await eventModel.findById(event);
+          const eventInstance = await eventModel.findById(event).session(session);
           if (!eventInstance) {
             return res.status(404).json({ message: 'Event not found' });
           }
@@ -39,7 +41,7 @@ const BookingController = {
     
           const totalPrice = eventInstance.ticketPricing * numberOfTickets;
           eventInstance.remainingTickets -= numberOfTickets;
-          await eventInstance.save();
+          await eventInstance.save({ session });
     
           // Create a new booking record
           const newBooking = new bookingModel({
@@ -49,10 +51,32 @@ const BookingController = {
             totalPrice,
             status: 'confirmed',
           });
-          await newBooking.save();
+          await newBooking.save({ session });
+
+
+       // Initiate payment with Stripe
+       const paymentIntent = await stripe.paymentIntents.create({
+        amount: totalPrice * 100, // convert to cents
+        currency: 'usd',
+        payment_method: paymentMethodId,
+        confirm: true,
+        automatic_payment_methods: {
+          enabled: true,
+          allow_redirects: 'never',
+        },
+      });
+      // Check if payment is successful
+      if (paymentIntent.status !== 'succeeded') {
+        await session.abortTransaction();
+        session.endSession();
+        return res.status(500).json({ message: 'Payment failed' });
+      }
+
+
+          const userInstance = await userModel.findById(user).session(session);
     
           // Generate the QR code for the booking
-          const qrData = `Booking ID: ${newBooking._id}\nEvent: ${eventInstance.title}\nUser: ${user.name}`;
+          const qrData = `Booking ID: ${newBooking._id}\nEvent: ${eventInstance.title}\nUser: ${userInstance.name}`;
           
           // Generate QR code and convert it to a buffer
           QRCode.toBuffer(qrData, { type: 'png' }, async (err, buffer) => {
@@ -60,7 +84,7 @@ const BookingController = {
               console.error('Error generating QR code:', err);
               return res.status(500).json({ message: 'Error generating QR code' });
             }
-            const userInstance  = await userModel.findById(user);
+           
     
             // Email content
             const mailOptions = {
@@ -85,11 +109,17 @@ const BookingController = {
               return res.status(500).json({ message: 'Error sending email' });
             }
     
+            await session.commitTransaction();
+            session.endSession();
             // Respond to the user with the booking details
             res.status(201).json(newBooking);
           });
         } catch (error) {
-          res.status(500).json({ message: 'Error booking ticket', error });
+            await session.abortTransaction();
+            session.endSession();
+            console.error(error);
+            res.status(500).json({ message: 'Error booking ticket', error });
+            res.status(500).json({ message: 'Error booking ticket', error });
         }
       },
 
@@ -129,6 +159,15 @@ const BookingController = {
     
           const event = await eventModel.findById(booking.event).session(session);
           if (!event) throw new Error('Event not found');
+          // Refund the user via Stripe
+        const refund = await stripe.refunds.create({
+            payment_intent: booking.paymentIntentId, // Assume this ID was saved in the booking model
+            });
+
+        // If refund fails, abort transaction
+        if (!refund) {
+            throw new Error('Refund failed');
+        }
     
           // Restore tickets
           event.remainingTickets += booking.numberOfTickets;

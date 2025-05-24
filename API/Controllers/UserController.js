@@ -7,10 +7,26 @@ const mongoose = require('mongoose');
 const userController = { 
     getAllUsers: async (req, res) => {
         try {
+            console.log('Getting all users...');
+            console.log('User making request:', req.user);
+            
             const users = await userModel.find();
-            res.status(200).json(users);
+            console.log('Found users:', users);
+            
+            // Remove sensitive information before sending
+            const sanitizedUsers = users.map(user => ({
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                createdAt: user.createdAt
+            }));
+            
+            console.log('Sending sanitized users:', sanitizedUsers);
+            res.status(200).json(sanitizedUsers);
         } catch (error) {
-            res.status(500).json({ message: 'Error fetching users', error });
+            console.error('Error in getAllUsers:', error);
+            res.status(500).json({ message: 'Error fetching users', error: error.message });
         }
     },
     getUserProfile : async (req, res) => {
@@ -69,13 +85,31 @@ const userController = {
     deleteUser : async (req, res) => {
         try {
             const userId = req.params.id;
-            const deletedUser = await userModel.findByIdAndDelete(userId);
-            if (!deletedUser) {
+            
+            // Find the user first to check their role
+            const user = await userModel.findById(userId);
+            if (!user) {
                 return res.status(404).json({ message: 'User not found' });
             }
-            res.status(200).json({ message: 'User deleted successfully' });
+
+            // If user is an organizer, delete all their events first
+            if (user.role === 'Organizer') {
+                console.log(`Deleting events for organizer: ${userId}`);
+                const deletedEvents = await eventModel.deleteMany({ organizer: userId });
+                console.log(`Deleted ${deletedEvents.deletedCount} events`);
+            }
+
+            // Delete the user
+            const deletedUser = await userModel.findByIdAndDelete(userId);
+            console.log(`Deleted user: ${userId}`);
+
+            res.status(200).json({ 
+                message: 'User and associated data deleted successfully',
+                deletedEvents: user.role === 'Organizer' ? deletedEvents.deletedCount : 0
+            });
         } catch (error) {
-            res.status(500).json({ message: 'Error deleting user', error });
+            console.error('Error deleting user:', error);
+            res.status(500).json({ message: 'Error deleting user', error: error.message });
         }
     },
     getUserBooking : async (req, res) => {
@@ -159,9 +193,35 @@ const userController = {
             res.status(500).json({ message: 'Error fetching user details', error });
         }
     },
+    getAdminStats: async (req, res) => {
+        try {
+            // Get total users
+            const totalUsers = await userModel.countDocuments();
+            console.log('Total users:', totalUsers);
 
-    
+            // Get total events (all statuses)
+            const totalEvents = await eventModel.countDocuments({});
+            console.log('Total events:', totalEvents);
 
+            // Get total tickets sold and revenue from confirmed bookings
+            const confirmedBookings = await bookingModel.find({ status: 'confirmed' });
+            console.log('Confirmed bookings:', confirmedBookings);
 
+            const totalTicketsSold = confirmedBookings.reduce((acc, booking) => acc + booking.numberOfTickets, 0);
+            const totalRevenue = confirmedBookings.reduce((acc, booking) => acc + booking.totalPrice, 0);
+            console.log('Total tickets sold:', totalTicketsSold);
+            console.log('Total revenue:', totalRevenue);
+
+            res.status(200).json({
+                totalUsers,
+                totalEvents,
+                totalTicketsSold,
+                totalRevenue
+            });
+        } catch (error) {
+            console.error('Error fetching admin stats:', error);
+            res.status(500).json({ message: 'Error fetching admin statistics', error: error.message });
+        }
+    },
 }; 
 module.exports = userController;
