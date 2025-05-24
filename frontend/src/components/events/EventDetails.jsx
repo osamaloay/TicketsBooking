@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { toast } from 'react-toastify';
-import BookTicketForm from './BookTicketForm';
+import { FaCalendarAlt, FaMapMarkerAlt, FaClock, FaTicketAlt, FaUser, FaInfoCircle } from 'react-icons/fa';
+import { eventService } from '../../services/eventService';
 import './EventDetails.css';
 
 const EventDetails = () => {
@@ -11,18 +12,20 @@ const EventDetails = () => {
   const navigate = useNavigate();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showBookingForm, setShowBookingForm] = useState(false);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    // Fetch event details
     const fetchEventDetails = async () => {
       try {
-        // Add your API call here to fetch event details
-        // const response = await eventService.getEventById(id);
-        // setEvent(response.data);
-        setLoading(false);
+        console.log('Fetching event with ID:', id); // Debug log
+        const data = await eventService.getEventDetails(id);
+        console.log('Fetched event data:', data); // Debug log
+        setEvent(data);
       } catch (error) {
-        toast.error('Failed to load event details');
+        console.error('Error fetching event details:', error);
+        setError(error.message || 'Failed to load event details. Please try again later.');
+        toast.error(error.message || 'Failed to load event details');
+      } finally {
         setLoading(false);
       }
     };
@@ -36,86 +39,120 @@ const EventDetails = () => {
       navigate('/login', { state: { from: `/events/${id}` } });
       return;
     }
-    setShowBookingForm(true);
+    navigate(`/events/${id}/purchase`);
   };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <div className="event-details-loading">
+        <div className="spinner"></div>
+        <p>Loading event details...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="event-details-error">
+        <p>{error}</p>
+        <button onClick={() => navigate('/')}>Return to Home</button>
+      </div>
+    );
   }
 
   if (!event) {
-    return <div className="error">Event not found</div>;
+    return (
+      <div className="event-details-error">
+        <p>Event not found</p>
+        <button onClick={() => navigate('/')}>Return to Home</button>
+      </div>
+    );
   }
 
   return (
-    <div className="event-details">
-      <div className="event-header">
-        <img src={event.image} alt={event.title} className="event-image" />
-        <div className="event-info">
+    <div className="event-details-container">
+      <div className="event-details-header">
+        <div className="event-details-image-container">
+          <img 
+            src={event.image || 'https://via.placeholder.com/800x400'} 
+            alt={event.title} 
+            className="event-details-image"
+          />
+        </div>
+        <div className="event-details-info">
           <h1>{event.title}</h1>
-          <p className="event-date">{event.date}</p>
-          <p className="event-location">{event.location}</p>
-          <p className="event-price">${event.price}</p>
+          <div className="event-details-meta">
+            <div className="meta-item">
+              <FaCalendarAlt className="icon" />
+              <span>{new Date(event.date).toLocaleDateString()}</span>
+            </div>
+            <div className="meta-item">
+              <FaClock className="icon" />
+              <span>{new Date(event.date).toLocaleTimeString()}</span>
+            </div>
+            <div className="meta-item">
+              <FaMapMarkerAlt className="icon" />
+              <span>{event.location}</span>
+            </div>
+            <div className="meta-item">
+              <FaTicketAlt className="icon" />
+              <span>${event.ticketPricing}</span>
+            </div>
+            <div className="meta-item">
+              <FaUser className="icon" />
+              <span>{event.organizer?.name || 'Unknown'}</span>
+            </div>
+          </div>
           <div className="ticket-availability">
-            <span className="available-tickets">
-              {event.availableTickets} tickets available
-            </span>
-            {event.availableTickets <= 10 && (
-              <span className="low-tickets-warning">
-                Only {event.availableTickets} tickets left!
-              </span>
+            <p className="available-tickets">
+              {event.remainingTickets} tickets available
+            </p>
+            {event.remainingTickets <= 10 && (
+              <p className="low-tickets-warning">
+                Only {event.remainingTickets} tickets left!
+              </p>
             )}
           </div>
-        </div>
-      </div>
-
-      <div className="event-description">
-        <h2>About the Event</h2>
-        <p>{event.description}</p>
-      </div>
-
-      {!showBookingForm ? (
-        <div className="event-actions">
           <button 
             className="buy-ticket-button"
             onClick={handleBuyTicket}
-            disabled={event.availableTickets === 0}
+            disabled={event.remainingTickets === 0}
           >
-            {event.availableTickets === 0 
+            {event.remainingTickets === 0 
               ? 'Sold Out' 
               : user 
                 ? 'Buy Tickets' 
                 : 'Sign in to Buy Tickets'}
           </button>
         </div>
-      ) : (
-        <BookTicketForm 
-          event={event}
-          onClose={() => setShowBookingForm(false)}
-          onSuccess={() => {
-            setShowBookingForm(false);
-            toast.success('Tickets purchased successfully!');
-            navigate('/dashboard');
-          }}
-        />
-      )}
+      </div>
 
-      {/* Additional event details */}
-      <div className="event-details-grid">
-        <div className="detail-item">
+      <div className="event-details-content">
+        <section className="event-details-description">
+          <h2><FaInfoCircle className="section-icon" /> About the Event</h2>
+          <p>{event.description}</p>
+        </section>
+
+        <section className="event-details-more-info">
+          <h2>Event Details</h2>
+          <div className="details-grid">
+            <div className="detail-card">
           <h3>Date & Time</h3>
-          <p>{event.date}</p>
-          <p>{event.time}</p>
+              <p>{new Date(event.date).toLocaleDateString()}</p>
+              <p>{new Date(event.date).toLocaleTimeString()}</p>
         </div>
-        <div className="detail-item">
+            <div className="detail-card">
           <h3>Location</h3>
           <p>{event.location}</p>
-          <p>{event.venue}</p>
+              {event.venue && <p>{event.venue}</p>}
         </div>
-        <div className="detail-item">
+            <div className="detail-card">
           <h3>Organizer</h3>
-          <p>{event.organizer}</p>
+              <p>{event.organizer?.name || 'Unknown'}</p>
+              {event.organizer?.email && <p>{event.organizer.email}</p>}
+            </div>
         </div>
+        </section>
       </div>
     </div>
   );

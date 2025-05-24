@@ -5,6 +5,7 @@ const { authenticateToken, isAdmin, isOrganizer } = require('../Middleware/auth'
 
 // Public routes
 router.get('/events', EventController.getAllEvents);
+router.get('/events/approved', EventController.getApprovedEvents);
 router.get('/events/:id', EventController.getEventById);
 
 // Organizer routes

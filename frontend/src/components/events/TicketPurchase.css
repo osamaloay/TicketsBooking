@@ -1,152 +1,184 @@
-.ticket-purchase {
+.ticket-purchase-container {
   max-width: 800px;
   margin: 2rem auto;
   padding: 0 1rem;
 }
 
-.ticket-purchase h1 {
-  text-align: center;
+.ticket-purchase-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.ticket-purchase-card h1 {
   color: #333;
+  font-size: 2rem;
   margin-bottom: 2rem;
+  text-align: center;
 }
 
 .event-summary {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
 }
 
 .event-summary h2 {
   color: #333;
+  font-size: 1.5rem;
   margin-bottom: 1rem;
 }
 
-.event-date,
-.event-location {
+.event-details {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.event-details p {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   color: #666;
-  margin: 0.5rem 0;
+}
+
+.event-details i {
+  color: #4CAF50;
+  width: 20px;
 }
 
 .purchase-form {
-  background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.form-group {
-  margin-bottom: 2rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  color: #333;
-  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .quantity-selector {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  max-width: 200px;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.quantity-selector button {
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
-  width: 40px;
-  height: 40px;
-  border-radius: 4px;
-  font-size: 1.2rem;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.quantity-selector button:hover:not(:disabled) {
-  background: #e9ecef;
-}
-
-.quantity-selector button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.quantity-selector span {
-  font-size: 1.2rem;
+.quantity-selector label {
+  color: #333;
   font-weight: 500;
-  min-width: 40px;
-  text-align: center;
+}
+
+.quantity-selector input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 100px;
 }
 
 .price-summary {
-  margin: 2rem 0;
-  padding: 1.5rem;
   background: #f8f9fa;
+  padding: 1.5rem;
   border-radius: 8px;
 }
 
 .price-row {
   display: flex;
   justify-content: space-between;
-  margin: 0.5rem 0;
+  margin-bottom: 0.75rem;
   color: #666;
 }
 
 .price-row.total {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #dee2e6;
+  border-top: 1px solid #ddd;
   font-weight: 600;
   color: #333;
   font-size: 1.2rem;
 }
 
+.purchase-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.purchase-button,
+.cancel-button {
+  flex: 1;
+  padding: 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
 .purchase-button {
-  width: 100%;
-  background: linear-gradient(135deg, #2ecc71, #27ae60);
+  background-color: #4CAF50;
+  color: white;
+}
+
+.purchase-button:hover:not(:disabled) {
+  background-color: #45a049;
+  transform: translateY(-2px);
+}
+
+.purchase-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.cancel-button {
+  background-color: #f8f9fa;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.cancel-button:hover:not(:disabled) {
+  background-color: #e9ecef;
+}
+
+.ticket-purchase-loading,
+.ticket-purchase-error {
+  text-align: center;
+  padding: 3rem;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #4CAF50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.ticket-purchase-error button {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #4CAF50;
   color: white;
   border: none;
-  padding: 1rem;
-  font-size: 1.1rem;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  font-weight: 600;
-}
-
-.purchase-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(46, 204, 113, 0.2);
-}
-
-.loading {
-  text-align: center;
-  padding: 2rem;
-  font-size: 1.2rem;
-  color: #666;
-}
-
-.error {
-  text-align: center;
-  padding: 2rem;
-  color: #e74c3c;
-  font-size: 1.2rem;
 }
 
 @media (max-width: 768px) {
-  .ticket-purchase {
-    margin: 1rem auto;
-  }
-
-  .event-summary,
-  .purchase-form {
+  .ticket-purchase-card {
     padding: 1.5rem;
   }
 
-  .quantity-selector {
-    max-width: 100%;
+  .purchase-actions {
+    flex-direction: column;
+  }
+
+  .purchase-button,
+  .cancel-button {
+    width: 100%;
   }
 } 

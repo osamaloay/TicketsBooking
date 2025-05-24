@@ -14,12 +14,14 @@ import { AuthProvider } from './context/AuthContext';
 import { Toaster } from 'react-hot-toast';
 import './App.css';
 import EventDetails from './components/events/EventDetails';
+import EventCompleteDet from './components/events/EventCompleteDet';
 import TicketPurchase from './components/events/TicketPurchase';
 import Dashboard from './components/dashboard/Dashboard';
 import OrganizerDashboard from './components/dashboard/OrganizerDashboard';
 import AdminDashboard from './components/dashboard/AdminDashboard';
 import CreateEvent from './components/events/CreateEvent';
 import EditEvent from './components/events/EditEvent';
+import UserBookingsPage from './components/bookings/UserBookingsPage';
 
 function App() {
   return (
@@ -36,6 +38,7 @@ function App() {
               <Route path="/register" element={<RegisterForm />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/events/:id" element={<EventDetails />} />
+              <Route path="/events/:id/details" element={<EventCompleteDet />} />
 
               {/* Protected Routes */}
               <Route path="/events/:id/purchase" element={
@@ -79,6 +82,11 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route path="/my-bookings" element={
+                <ProtectedRoute>
+                  <UserBookingsPage />
+                </ProtectedRoute>
+              } />
             </Routes>
           </main>
           <Footer />

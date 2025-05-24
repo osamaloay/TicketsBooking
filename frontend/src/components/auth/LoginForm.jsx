@@ -158,7 +158,7 @@ const LoginForm = () => {
 
         <div className="form-footer register-link">
           <div className="register-text">
-            Don't have an account? <Link to="/register">Register here</Link>
+          Don't have an account? <Link to="/register">Register here</Link>
           </div>
           <div className="forgot-password-link-container">
             <Link to="/forgot-password" className="forgot-password-link" style={{ display: 'block' }}>

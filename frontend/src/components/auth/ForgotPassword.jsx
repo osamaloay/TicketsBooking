@@ -69,13 +69,13 @@ const ForgotPassword = () => {
         
         {step === 1 && (
           <form onSubmit={handleSendOTP}>
-            <div className="form-group">
+        <div className="form-group">
               <label htmlFor="email">Email Address</label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+          <input
+            type="email"
+            id="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="Enter your email"
                 className="form-control"
@@ -101,7 +101,7 @@ const ForgotPassword = () => {
                 maxLength="6"
                 className="form-control"
               />
-            </div>
+        </div>
             <button type="submit" className="submit-button" disabled={loading}>
               {loading ? 'Verifying...' : 'Verify OTP'}
             </button>
@@ -138,7 +138,7 @@ const ForgotPassword = () => {
             </div>
             <button type="submit" className="submit-button" disabled={loading}>
               {loading ? 'Resetting...' : 'Reset Password'}
-            </button>
+        </button>
           </form>
         )}
 

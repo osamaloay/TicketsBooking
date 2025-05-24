@@ -1,48 +1,29 @@
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import FeaturedEvents from './events/FeaturedEvents';
 import './Home.css';
 
 const Home = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <div className="home">
-      {/* Events Review Section */}
-      <section className="events-review">
-        <div className="events-container">
-          <h2>Featured Events</h2>
-          <div className="events-grid">
-            {/* Placeholder for events - will be populated with real data later */}
-            <div className="event-card">
-              <div className="event-image">
-                <img src="https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Event" />
-              </div>
-              <div className="event-info">
-                <h3>Summer Music Festival</h3>
-                <p className="date">June 15, 2024</p>
-                <p className="location">Central Park, NY</p>
-              </div>
-            </div>
-            <div className="event-card">
-              <div className="event-image">
-                <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Event" />
-              </div>
-              <div className="event-info">
-                <h3>Jazz Night</h3>
-                <p className="date">June 20, 2024</p>
-                <p className="location">Blue Note, NY</p>
-              </div>
-            </div>
-            <div className="event-card">
-              <div className="event-image">
-                <img src="https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" alt="Event" />
-              </div>
-              <div className="event-info">
-                <h3>Rock Concert</h3>
-                <p className="date">June 25, 2024</p>
-                <p className="location">Madison Square Garden</p>
-              </div>
-            </div>
-          </div>
+      {/* Dashboard Button for logged-in users */}
+      {user && (
+        <div className="dashboard-button-container">
+          <button 
+            className="dashboard-button"
+            onClick={() => navigate('/dashboard')}
+          >
+            <i className="fas fa-tachometer-alt"></i> Back to Dashboard
+          </button>
         </div>
-      </section>
+      )}
+
+      {/* Featured Events Section */}
+      <FeaturedEvents />
 
       {/* Hero Section with Categories */}
       <section className="hero">
@@ -67,23 +48,25 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Auth Buttons Section */}
-      <section className="auth-section">
-        <div className="auth-container">
-          <h2>Join Our Community</h2>
-          <p>Create an account or sign in to start booking events</p>
-          <div className="cta-buttons">
-            <Link to="/register" className="cta-button primary">
-              <i className="fas fa-user-plus mr-2"></i>
-              Register Now
-            </Link>
-            <Link to="/login" className="cta-button secondary">
-              <i className="fas fa-sign-in-alt mr-2"></i>
-              Login
-            </Link>
+      {/* Auth Buttons Section - Only show if user is not logged in */}
+      {!user && (
+        <section className="auth-section">
+          <div className="auth-container">
+            <h2>Join Our Community</h2>
+            <p>Create an account or sign in to start booking events</p>
+            <div className="cta-buttons">
+              <Link to="/register" className="cta-button primary">
+                <i className="fas fa-user-plus mr-2"></i>
+                Register Now
+              </Link>
+              <Link to="/login" className="cta-button secondary">
+                <i className="fas fa-sign-in-alt mr-2"></i>
+                Login
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
     </div>
   );
 };

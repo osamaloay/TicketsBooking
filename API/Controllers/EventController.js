@@ -52,13 +52,28 @@ const EventController = {
     },
     getEventById: async (req, res) => {
         try {
-            const event = await eventModel.findById(req.params.id);
+            console.log('Fetching event with ID:', req.params.id);
+            const event = await eventModel.findById(req.params.id)
+                .populate('organizer', 'name email');
+            
             if (!event) {
+                console.log('Event not found with ID:', req.params.id);
                 return res.status(404).json({ message: 'Event not found' });
             }
+            
+            console.log('Event found:', {
+                id: event._id,
+                title: event.title,
+                status: event.status
+            });
+            
             res.status(200).json(event);
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            console.error('Error in getEventById:', error);
+            res.status(500).json({ 
+                message: 'Error fetching event details', 
+                error: error.message 
+            });
         }
     },
     updateEvent: async (req, res) => {
@@ -96,10 +111,19 @@ const EventController = {
      }, 
      getApprovedEvents: async (req, res) => { 
         try {
-            const events = await eventModel.find({ status: 'approved' });
+            console.log('Fetching approved events...');
+            const events = await eventModel.find({ status: 'approved' })
+                .populate('organizer', 'name email')
+                .sort({ createdAt: -1 });
+            
+            console.log(`Found ${events.length} approved events`);
             res.status(200).json(events);
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            console.error('Error fetching approved events:', error);
+            res.status(500).json({ 
+                message: 'Error fetching approved events', 
+                error: error.message 
+            });
         }
     },
     getPendingEvents: async (req, res) => {
@@ -238,6 +262,29 @@ const EventController = {
         } catch (error) {
             console.error('Error updating event status:', error);
             res.status(500).json({ message: 'Error updating event status', error: error.message });
+        }
+    },
+    uploadEventImage: async (req, res) => {
+        try {
+            if (!req.file) {
+                return res.status(400).json({ message: 'No image file uploaded' });
+            }
+
+            // Create the full image URL including the API base URL
+            const imageUrl = `${process.env.API_URL || 'http://localhost:5000'}/uploads/events/${req.file.filename}`;
+            
+            console.log('Image uploaded successfully:', imageUrl);
+            
+            res.status(200).json({
+                message: 'Image uploaded successfully',
+                imageUrl: imageUrl
+            });
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            res.status(500).json({
+                message: 'Error uploading image',
+                error: error.message 
+            });
         }
     }
 };

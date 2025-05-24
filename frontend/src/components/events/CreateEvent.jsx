@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { eventService } from '../../services/eventService';
+import ImageUpload from '../shared/ImageUpload';
 import './CreateEvent.css';
 
 const CreateEvent = () => {
@@ -28,11 +29,26 @@ const CreateEvent = () => {
     }));
   };
 
+  const handleImageSelect = (imageUrl) => {
+    console.log('Image selected:', imageUrl); // Debug log
+    setFormData(prev => ({
+      ...prev,
+      image: imageUrl
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Validate required fields
+      if (!formData.image) {
+        toast.error('Please upload an event image');
+        setLoading(false);
+        return;
+      }
+
       // Combine date and time
       const eventDateTime = new Date(`${formData.date}T${formData.time}`);
       
@@ -42,20 +58,20 @@ const CreateEvent = () => {
         date: eventDateTime.toISOString(),
         location: formData.location,
         category: formData.category,
-        image: formData.image,
+        image: formData.image, // This should already be the URL from the image upload
         ticketPrice: parseFloat(formData.ticketPrice),
         totalTickets: parseInt(formData.totalTickets),
         remainingTickets: parseInt(formData.totalTickets) // Initially same as total tickets
       };
 
-      console.log('Submitting event data:', eventData); // Debug log
+      console.log('Submitting event data:', eventData);
       const response = await eventService.createEvent(eventData);
-      console.log('Server response:', response); // Debug log
+      console.log('Server response:', response);
       
       toast.success('Event created successfully!');
       navigate('/organizer-dashboard');
     } catch (error) {
-      console.error('Error creating event:', error); // Debug log
+      console.error('Error creating event:', error);
       toast.error(error.message || 'Failed to create event');
     } finally {
       setLoading(false);
@@ -64,9 +80,8 @@ const CreateEvent = () => {
 
   return (
     <div className="create-event-container">
-      <div className="create-event-card">
         <h1>Create New Event</h1>
-        <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="create-event-form">
           <div className="form-group">
             <label htmlFor="title">Event Title</label>
             <input
@@ -76,7 +91,6 @@ const CreateEvent = () => {
               value={formData.title}
               onChange={handleChange}
               required
-              placeholder="Enter event title"
             />
           </div>
 
@@ -88,8 +102,6 @@ const CreateEvent = () => {
               value={formData.description}
               onChange={handleChange}
               required
-              placeholder="Enter event description"
-              rows="4"
             />
           </div>
 
@@ -103,7 +115,6 @@ const CreateEvent = () => {
                 value={formData.date}
                 onChange={handleChange}
                 required
-                min={new Date().toISOString().split('T')[0]}
               />
             </div>
 
@@ -129,39 +140,7 @@ const CreateEvent = () => {
               value={formData.location}
               onChange={handleChange}
               required
-              placeholder="Enter event location"
-            />
-          </div>
-
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="totalTickets">Total Tickets</label>
-              <input
-                type="number"
-                id="totalTickets"
-                name="totalTickets"
-                value={formData.totalTickets}
-                onChange={handleChange}
-                required
-                min="1"
-                placeholder="Enter number of tickets"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="ticketPrice">Ticket Price ($)</label>
-              <input
-                type="number"
-                id="ticketPrice"
-                name="ticketPrice"
-                value={formData.ticketPrice}
-                onChange={handleChange}
-                required
-                min="0"
-                step="0.01"
-                placeholder="Enter ticket price"
-              />
-            </div>
+          />
           </div>
 
           <div className="form-group">
@@ -182,36 +161,50 @@ const CreateEvent = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="image">Image URL</label>
+          <label>Event Image</label>
+          <ImageUpload 
+            onImageSelect={handleImageSelect}
+            currentImage={formData.image}
+          />
+        </div>
+
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="ticketPrice">Ticket Price ($)</label>
             <input
-              type="url"
-              id="image"
-              name="image"
-              value={formData.image}
+              type="number"
+              id="ticketPrice"
+              name="ticketPrice"
+              value={formData.ticketPrice}
               onChange={handleChange}
-              placeholder="Enter image URL (optional)"
+              min="0"
+              step="0.01"
+              required
             />
           </div>
 
-          <div className="form-actions">
-            <button
-              type="button"
-              className="cancel-button"
-              onClick={() => navigate('/organizer-dashboard')}
-              disabled={loading}
-            >
-              Cancel
-            </button>
+          <div className="form-group">
+            <label htmlFor="totalTickets">Total Tickets</label>
+            <input
+              type="number"
+              id="totalTickets"
+              name="totalTickets"
+              value={formData.totalTickets}
+              onChange={handleChange}
+              min="1"
+              required
+            />
+          </div>
+        </div>
+
             <button
               type="submit"
               className="submit-button"
               disabled={loading}
             >
-              {loading ? 'Creating...' : 'Create Event'}
+          {loading ? 'Creating Event...' : 'Create Event'}
             </button>
-          </div>
         </form>
-      </div>
     </div>
   );
 };

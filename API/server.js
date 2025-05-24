@@ -11,6 +11,7 @@ const BookingROUTE= require('./Routes/BookingRoute');
 const UserROUTE = require('./Routes/UserRoute'); 
 const AuthROUTE = require('./Routes/AuthenticateRoute'); 
 const verifyOTPROUTE = require('./Routes/OTPROUTES');
+const fs = require('fs');
 
 
 
@@ -32,6 +33,15 @@ app.use(cors({
 
 app.use(cookieParser());
 app.use('/tickets', express.static(path.join(__dirname, 'tickets')));
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'uploads/events');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 

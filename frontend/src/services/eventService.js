@@ -31,12 +31,24 @@ const eventService = {
     }
   },
 
-  // Get event details
+  // Get event details (public route)
   getEventDetails: async (eventId) => {
     try {
-      const response = await axios.get(`${API_URL}/events/${eventId}`);
+      console.log('Fetching event details for ID:', eventId); // Debug log
+      const response = await axios.get(`${API_URL}/events/${eventId}`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+      console.log('Event details response:', response.data); // Debug log
       return response.data;
     } catch (error) {
+      console.error('Error fetching event details:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        console.error('Error status:', error.response.status);
+      }
       throw new Error(error.response?.data?.message || 'Error fetching event details');
     }
   },
@@ -316,6 +328,98 @@ const eventService = {
     } catch (error) {
       console.error('Error fetching event analytics:', error);
       throw error.response?.data?.message || 'Failed to fetch event analytics';
+    }
+  },
+
+  // Get all approved events (public)
+  getApprovedEvents: async () => {
+    try {
+      console.log('Fetching approved events...');
+      const response = await axios.get(`${API_URL}/events`, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      
+      console.log('Approved events response:', response.data);
+      if (!Array.isArray(response.data)) {
+        console.error('Invalid response format:', response.data);
+        throw new Error('Invalid response format from server');
+      }
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching approved events:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        console.error('Error status:', error.response.status);
+      }
+      throw new Error('Failed to fetch approved events');
+    }
+  },
+
+  // Upload event image
+  uploadEventImage: async (formData) => {
+    try {
+      console.log('Starting image upload...'); // Debug log
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      // Debug log FormData contents
+      console.log('FormData contents:');
+      for (let [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(`${key}: File(${value.name}, ${value.type}, ${value.size} bytes)`);
+        } else {
+          console.log(`${key}: ${value}`);
+        }
+      }
+
+      // Log the API URL
+      console.log('Uploading to:', `${API_URL}/events/upload-image`);
+
+      const response = await axios.post(
+        `${API_URL}/events/upload-image`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`
+          },
+          // Add these options to handle file upload properly
+          transformRequest: [(data) => data],
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+            console.log('Upload progress:', percentCompleted + '%');
+          }
+        }
+      );
+
+      console.log('Image upload response:', response.data); // Debug log
+      return response.data;
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+        console.error('Error status:', error.response.status);
+        console.error('Error headers:', error.response.headers);
+      }
+      throw new Error(error.response?.data?.message || 'Error uploading image');
+    }
+  },
+
+  async purchaseTickets(purchaseData) {
+    try {
+      const response = await axios.post(`${API_URL}/events/purchase`, purchaseData, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to purchase tickets');
     }
   }
 };
