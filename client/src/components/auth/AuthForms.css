@@ -1,0 +1,60 @@
+.auth-form {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: var(--dark-gradient);
+    border: 1px solid var(--neon-green);
+    border-radius: 8px;
+    box-shadow: var(--neon-shadow);
+}
+
+.auth-form h2 {
+    color: var(--neon-green);
+    text-align: center;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px var(--neon-green);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--light-text);
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--darker-bg);
+    border: 1px solid var(--neon-green);
+    border-radius: 4px;
+    color: var(--light-text);
+    transition: all var(--transition-speed);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    box-shadow: var(--neon-shadow);
+}
+
+.verification-message {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    color: var(--neon-green);
+    font-size: 0.9rem;
+}
+
+.auth-form input[type="text"] {
+    letter-spacing: 0.5rem;
+    font-size: 1.2rem;
+    text-align: center;
+}
+
+/* Add this to your global.css or import it in your App.jsx */

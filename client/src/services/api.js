@@ -6,6 +6,7 @@ const api = axios.create({
     headers: {
         'Content-Type': 'application/json'
     },
+    withCredentials : true 
     
 });
 
@@ -25,9 +26,9 @@ const handleError = (error) => {
 
 // Auth services
 export const authService = {
-    login: async (credentials) => {
+    login: async (email,password) => {
         try {
-            const response = await api.post('/login', credentials);
+            const response = await api.post('/login', {email,password});
             return response.data;
         } catch (error) {
             return handleError(error);
@@ -43,7 +44,7 @@ export const authService = {
     },
     logout: async () => {
         try {
-            const response = await api.post('/logout');
+            const response = await api.get('/logout');
             return response.data;
         } catch (error) {
             return handleError(error);

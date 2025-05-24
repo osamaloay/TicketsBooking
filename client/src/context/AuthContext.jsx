@@ -11,7 +11,13 @@ const ROLES = {
     USER: 'Standard User'
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error('useAuth must be used within an AuthProvider');
+    }
+    return context;
+};
 
 export const AuthProvider = ({ children }) => {
     const navigate = useNavigate();
@@ -61,13 +67,19 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const login = async (credentials) => {
+    const login = async (email, password) => {
         setLoginLoading(true);
         try {
-            const response = await authService.login(credentials);
-            setPendingUser({ email: credentials.email });
+            const response = await api.post('/login', { email, password });
+            setPendingUser({ email });
             toast.success("Verify your OTP  🎈 ");
-            return response;
+            navigate('/verify', { 
+                state: { 
+                    type: 'login',
+                    email: email 
+                } 
+            });
+            return response.data;
         } catch (error) {
             throw error;
         } finally {
@@ -126,13 +138,33 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = async () => {
-        await authService.logout();
-        localStorage.removeItem('token');
-        setUser(null);
-        setRole(null);
-        setPendingUser(null);
-        toast.success("bye bye !");
-        navigate('/login');
+        try {
+            // Call the logout endpoint
+            const response = await authService.logout();
+            
+            // Clear all auth-related state
+            localStorage.removeItem('token');
+            setUser(null);
+            setRole(null);
+            setPendingUser(null);
+            setError(null);
+            
+            // Show success message
+            toast.success("Logged out successfully!");
+            
+            // Navigate to login page
+            navigate('/login');
+        } catch (error) {
+            console.error('Logout error:', error);
+            toast.error('Failed to logout properly');
+            
+            // Even if the API call fails, clear local state
+            localStorage.removeItem('token');
+            setUser(null);
+            setRole(null);
+            setPendingUser(null);
+            navigate('/login');
+        }
     };
 
     const forgotPassword = async(email) => { 
