@@ -1,6 +1,7 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import api, { authService, userService } from '../services/api';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const AuthContext = createContext();
 
@@ -51,6 +52,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await authService.register(userData);
             setPendingUser({ email: userData.email });
+            toast.success("Verify your OTP  🎈 ");
             return response;
         } catch (error) {
             throw error;
@@ -64,6 +66,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await authService.login(credentials);
             setPendingUser({ email: credentials.email });
+            toast.success("Verify your OTP  🎈 ");
             return response;
         } catch (error) {
             throw error;
@@ -82,6 +85,7 @@ export const AuthProvider = ({ children }) => {
             setUser(userData);
             setRole(userData.role);
             setPendingUser(null);
+            toast.success("Verification completed 🎇 ");
             return response;
         } catch (error) {
             throw error;
@@ -100,6 +104,7 @@ export const AuthProvider = ({ children }) => {
         setUser(userData);
         setRole(userData.role);
         setPendingUser(null);
+        toast.success("Verification completed 🎇 ");
         return response;
     };
 
@@ -113,6 +118,7 @@ export const AuthProvider = ({ children }) => {
                 otp 
             });
             setResetEmail(null);
+            toast.success("Verification completed 🎇 ");
             return response;
         } catch (error) {
             throw error;
@@ -125,6 +131,7 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
         setRole(null);
         setPendingUser(null);
+        toast.success("bye bye !");
         navigate('/login');
     };
 
@@ -132,6 +139,7 @@ export const AuthProvider = ({ children }) => {
         try {
             const response = await authService.forgotPassword(email);
             setResetEmail(email); // Store email for OTP verification
+            toast.success("Verify your OTP  🎈 ");
             return response;
         } catch (error) {
             throw error;
