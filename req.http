@@ -123,6 +123,13 @@ Content-Type: application/json
     "email":"mansouosama@gmail.com", 
     "password":"12345678"
 }
+### 
+GET http://localhost:5000/api/v1/users/profile
+Content-Type: application/json
+
+{
+
+}
 
 ### 
 POST http://localhost:5000/api/v1/otp/verify/login
@@ -130,7 +137,7 @@ Content-Type:  application/json
 
 {
     "email":"mansouosama@gmail.com", 
-    "otp": "892467"
+    "otp": "345535"
 
 }
 
@@ -222,13 +229,13 @@ Content-Type: application/json
 
 {
     "email": "omansour570@gmail.com", 
-    "otp" : "383645"
+    "otp" : "603554"
 }
 
 ### 
 POST http://localhost:5000/api/v1/bookings
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2YmM0NmRiNTM1MzVmYzE2YTI3NyIsImlhdCI6MTc0NTI1MzQxOCwiZXhwIjoxNzQ1MjU3MDE4fQ.4sGHOhONzZ5tivY8Qzd6_5ohtq9KfgKSzZj0LA36KuY
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2YmM0NmRiNTM1MzVmYzE2YTI3NyIsImlhdCI6MTc0ODA5MzMzNSwiZXhwIjoxNzQ4MDk2OTM1fQ.fdnCqCu-hwsAhA8kP_ZBRfRo4W5PeH4f378_uoHmapA
 
 {
     "user": "68066bc46db53535fc16a277",
@@ -238,7 +245,7 @@ Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2YmM0N
 ### Book Ticket Request
 POST http://localhost:5000/api/v1/bookings
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2YmM0NmRiNTM1MzVmYzE2YTI3NyIsImlhdCI6MTc0NTI1ODI4OCwiZXhwIjoxNzQ1MjYxODg4fQ.BMNYKFmp7j9rve_n1-RI4vDI98CiIyeYwIWj4ywJvL4
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2YmM0NmRiNTM1MzVmYzE2YTI3NyIsImlhdCI6MTc0ODA5Mzk4NSwiZXhwIjoxNzQ4MDk3NTg1fQ.XSZQRjdfPYOdr3vJXDAnVMJfuJu1UOebr7EFLHyNeVE
 
 {
   "event": "680669459d39f187d8cbdc04",
@@ -246,13 +253,17 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2YmM0N
   "numberOfTickets": "2",
   "paymentMethodId": "pm_card_visa"
 }
+### cancel booking
+DELETE http://localhost:5000/api/v1/bookings/6831cc8ff62bb7f1e78a0120
+Content-Type: application/json 
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2YmM0NmRiNTM1MzVmYzE2YTI3NyIsImlhdCI6MTc0ODA5Mzk4NSwiZXhwIjoxNzQ4MDk3NTg1fQ.XSZQRjdfPYOdr3vJXDAnVMJfuJu1UOebr7EFLHyNeVE
 
 
 
 ###
 GET http://localhost:5000/api/v1/events
 Content-Type: application/json
-Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2YmM0NmRiNTM1MzVmYzE2YTI3NyIsImlhdCI6MTc0NTI1ODI4OCwiZXhwIjoxNzQ1MjYxODg4fQ.BMNYKFmp7j9rve_n1-RI4vDI98CiIyeYwIWj4ywJvL4
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2YmM0NmRiNTM1MzVmYzE2YTI3NyIsImlhdCI6MTc0ODA5Mzk4NSwiZXhwIjoxNzQ4MDk3NTg1fQ.XSZQRjdfPYOdr3vJXDAnVMJfuJu1UOebr7EFLHyNeVE
 
 {
 

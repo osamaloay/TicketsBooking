@@ -43,15 +43,7 @@ const BookingController = {
           eventInstance.remainingTickets -= numberOfTickets;
           await eventInstance.save({ session });
     
-          // Create a new booking record
-          const newBooking = new bookingModel({
-            user,
-            event,
-            numberOfTickets,
-            totalPrice,
-            status: 'confirmed',
-          });
-          await newBooking.save({ session });
+         
 
 
        // Initiate payment with Stripe
@@ -71,7 +63,16 @@ const BookingController = {
         session.endSession();
         return res.status(500).json({ message: 'Payment failed' });
       }
-
+       // Create a new booking record
+       const newBooking = new bookingModel({
+        user,
+        event,
+        numberOfTickets,
+        totalPrice,
+        status: 'confirmed',
+        payment_intent : paymentIntent.id
+      });
+      await newBooking.save({ session });
 
           const userInstance = await userModel.findById(user).session(session);
     
@@ -161,7 +162,7 @@ const BookingController = {
           if (!event) throw new Error('Event not found');
           // Refund the user via Stripe
         const refund = await stripe.refunds.create({
-            payment_intent: booking.paymentIntentId, // Assume this ID was saved in the booking model
+            payment_intent: booking.payment_intent, // Assume this ID was saved in the booking model
             });
 
         // If refund fails, abort transaction

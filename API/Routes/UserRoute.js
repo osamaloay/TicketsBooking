@@ -8,10 +8,10 @@ const authorize = require('../Middleware/authorizeMiddleware');
 router.get('/', authenticate, authorize('System Admin'), UserController.getAllUsers);
 
 // get current user profile 
-router.get('/users/profile', authenticate, UserController.getUserProfile);
+router.get('/profile', authenticate, UserController.getUserProfile);
 
 // update current user profile
-router.put('/users/profile', authenticate, UserController.updateUserProfile);
+router.put('/profile', authenticate, UserController.updateUserProfile);
 
 // get details of a specific user ("only admin can get user details")
 router.get('/:id', authenticate, authorize('System Admin'), UserController.getUsersDetails);
@@ -22,7 +22,7 @@ router.put('/:id', authenticate, authorize('System Admin'), UserController.updat
 // delete user ("only admin can delete user")
 router.delete('/:id', authenticate, authorize('System Admin'), UserController.deleteUser);
 
-// get current user Booking , it makes more since to let admins and event organizers to see all bookings
+// get current user Bookings , it makes more since to let admins and event organizers to see all bookings
 router.get('/booking', authenticate, authorize('Standard User'), UserController.getUserBooking);  // done implementing
 
 // get current Organizer events 
