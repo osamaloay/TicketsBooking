@@ -2,7 +2,7 @@ import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import '../styles/events.css';
-import Layout from '../components/layout/Layout';
+import Layout from '../components/Layout/Layout';
 
 // Pages
 import Login from '../pages/Login'
@@ -21,6 +21,7 @@ import Payment from '../components/payment/Payment'
 
 // Booking Components
 import Bookings from '../components/bookings/Bookings'
+import BookingDetails from '../components/bookings/BookingDetails'
 
 // Protected Route Component with role-based access
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
@@ -87,6 +88,13 @@ const AppRoutes = () => {
                 <Layout>
                     <ProtectedRoute>
                         <Bookings />
+                    </ProtectedRoute>
+                </Layout>
+            } />
+            <Route path="/bookings/:id" element={
+                <Layout>
+                    <ProtectedRoute>
+                        <BookingDetails />
                     </ProtectedRoute>
                 </Layout>
             } />

@@ -7,12 +7,14 @@ import { ErrorMessage } from '../shared/ErrorMessage';
 import { Button } from '../shared/Button';
 import { toast } from 'react-toastify';
 import '../../styles/bookings.css';
+import { useNavigate } from 'react-router-dom';
 
 const Bookings = () => {
     const { user } = useAuth();
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchBookings();
@@ -40,6 +42,10 @@ const Bookings = () => {
         } catch (error) {
             toast.error('Failed to cancel booking');
         }
+    };
+
+    const handleViewDetails = (bookingId) => {
+        navigate(`/bookings/${bookingId}`);
     };
 
     if (loading) return <LoadingSpinner />;
@@ -78,14 +84,22 @@ const Bookings = () => {
                                 </p>
                             </div>
 
-                            {booking.status === 'confirmed' && (
+                            <div className="booking-actions">
                                 <Button
-                                    variant="danger"
-                                    onClick={() => handleCancelBooking(booking._id)}
+                                    variant="primary"
+                                    onClick={() => handleViewDetails(booking._id)}
                                 >
-                                    Cancel Booking
+                                    View Details
                                 </Button>
-                            )}
+                                {booking.status === 'confirmed' && (
+                                    <Button
+                                        variant="danger"
+                                        onClick={() => handleCancelBooking(booking._id)}
+                                    >
+                                        Cancel Booking
+                                    </Button>
+                                )}
+                            </div>
                         </div>
                     ))}
                 </div>

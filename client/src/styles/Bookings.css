@@ -75,3 +75,23 @@
         grid-template-columns: 1fr;
     }
 }
+
+.booking-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.info-section {
+    margin-bottom: 1.5rem;
+}
+
+.info-section h4 {
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+
+.info-section p {
+    margin: 0.25rem 0;
+    color: #666;
+}
