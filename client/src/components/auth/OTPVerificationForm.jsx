@@ -6,13 +6,19 @@ import { ErrorMessage } from '../shared/ErrorMessage';
 import { useLocation } from 'react-router-dom';
 
 const OTPVerificationForm = () => {
-    const { type, email } = useLocation().state || {};
+    const location = useLocation();
+    const { type, email } = location.state || {};
     const { verifyOTPLogin, verifyOTPRegister, verifyOTPForgotPassword } = useAuth();
     const [otp, setOtp] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+
+    // Add console logs to debug state
+    console.log('OTPVerificationForm location state:', location.state);
+    console.log('OTPVerificationForm type:', type);
+    console.log('OTPVerificationForm email:', email);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -31,6 +37,7 @@ const OTPVerificationForm = () => {
                 case 'forgot-password':
                     if (password !== confirmPassword) {
                         setError("Passwords don't match");
+                        setLoading(false);
                         return;
                     }
                     await verifyOTPForgotPassword({ email, otp, newPassword: password });
@@ -41,12 +48,9 @@ const OTPVerificationForm = () => {
         } catch (error) {
             console.error('OTP verification error:', error);
             setError(error.response?.data?.message || 'Verification failed');
-        } finally {
             setLoading(false);
         }
     };
-
-    if (loading) return <LoadingSpinner />;
 
     return (
         <form onSubmit={handleSubmit} className="auth-form">
@@ -61,6 +65,7 @@ const OTPVerificationForm = () => {
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
                     required
+                    disabled={loading}
                 />
             </div>
 
@@ -75,6 +80,7 @@ const OTPVerificationForm = () => {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             minLength="6"
+                            disabled={loading}
                         />
                     </div>
 
@@ -87,6 +93,7 @@ const OTPVerificationForm = () => {
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             required
                             minLength="6"
+                            disabled={loading}
                         />
                     </div>
                 </>
@@ -94,8 +101,12 @@ const OTPVerificationForm = () => {
 
             {error && <ErrorMessage message={error} />}
 
-            <Button type="submit" variant="primary" fullWidth>
-                {type === 'forgot-password' ? 'Reset Password' : 'Verify OTP'}
+            <Button type="submit" variant="primary" fullWidth disabled={loading}>
+                {loading ? (
+                    <LoadingSpinner />
+                ) : (
+                    type === 'forgot-password' ? 'Reset Password' : 'Verify OTP'
+                )}
             </Button>
         </form>
     );

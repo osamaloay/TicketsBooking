@@ -195,14 +195,6 @@ export const AuthProvider = ({ children }) => {
             // Show success message
             toast.success("Verify your OTP  🎈 ");
             
-            // Navigate to verify page with proper state
-            navigate('/verify', { 
-                state: { 
-                    type: 'forgot-password',
-                    email: email 
-                } 
-            });
-            
             return response;
         } catch (error) {
             console.error('Forgot password error:', error);

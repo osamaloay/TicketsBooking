@@ -1,29 +1,20 @@
-import React, { useEffect } from 'react';
-import { useLocation, Navigate, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { useLocation, Navigate } from 'react-router-dom';
 import OTPVerificationForm from '../components/auth/OTPVerificationForm';
-import { useAuth } from '../context/AuthContext';
 
 const OTPVerification = () => {
     const location = useLocation();
-    const navigate = useNavigate();
-    const { pendingUser, isAuthenticated } = useAuth();
-
-    useEffect(() => {
-        // If user is already authenticated, redirect to home
-        if (isAuthenticated) {
-            navigate('/');
-        }
-    }, [isAuthenticated, navigate]);
-
-    // If no pending user, redirect to login
-    if (!pendingUser) {
-        return <Navigate to="/login" replace />;
+    
+    // Debug logs
+    console.log('OTPVerification page - Location state:', location.state);
+    
+    // If no state is present, redirect to forgot-password
+    if (!location.state || !location.state.type || !location.state.email) {
+        console.log('No state in OTPVerification, redirecting to forgot-password');
+        return <Navigate to="/forgot-password" replace />;
     }
 
-    // Get verification type from location state
-    const type = location.state?.type || 'login';
-
-    return <OTPVerificationForm type={type} />;
+    return <OTPVerificationForm />;
 };
 
 export default OTPVerification;

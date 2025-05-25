@@ -6,6 +6,7 @@ import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { ErrorMessage } from '../shared/ErrorMessage';
 
 const ForgotPasswordForm = () => {
+    const navigate = useNavigate();
     const { forgotPassword } = useAuth();
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
@@ -20,6 +21,21 @@ const ForgotPasswordForm = () => {
             console.log('Submitting forgot password for:', email);
             const response = await forgotPassword(email);
             console.log('Forgot password response:', response);
+            
+            // Add console log to verify state
+            console.log('Navigating to verify with state:', {
+                type: 'forgot-password',
+                email: email
+            });
+            
+            // Navigate immediately after successful response
+            navigate('/verify', { 
+                state: { 
+                    type: 'forgot-password',
+                    email: email 
+                },
+                replace: true // Add this to replace the current history entry
+            });
         } catch (error) {
             console.error('Forgot password error:', error);
             setError(error.response?.data?.message || 'Failed to send OTP');
