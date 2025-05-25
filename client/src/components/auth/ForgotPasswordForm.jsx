@@ -18,6 +18,7 @@ const ForgotPasswordForm = () => {
 
         try {
             await forgotPassword(email);
+            navigate('/verify', { state: { type: 'forgot' } });
             setSuccess(true);
         } catch (error) {
             setError(error.message);

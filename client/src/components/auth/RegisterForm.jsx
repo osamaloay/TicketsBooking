@@ -36,6 +36,7 @@ const RegisterForm = () => {
                 role: formData.role
             });
             // OTP verification will be handled by the auth context
+            navigate('/verify', { state: { type: 'register' } });
         } catch (error) {
             setError(error.message);
         } finally {
