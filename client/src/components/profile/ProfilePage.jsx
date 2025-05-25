@@ -2,12 +2,33 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import UpdateProfileForm from './UpdateProfileForm';
-import { FaUser, FaEnvelope, FaIdBadge } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaIdBadge, FaSignOutAlt } from 'react-icons/fa';
+import { authService } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
 import './ProfilePage.css';
 
 const ProfilePage = () => {
     const { user, role } = useAuth();
     const [editing, setEditing] = useState(false);
+    const navigate = useNavigate();
+
+    const handleLogout = async () => {
+        try {
+            await authService.logout();
+            // Clear all cookies
+            document.cookie.split(";").forEach(function(c) { 
+                document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+            });
+            // Clear local storage
+            localStorage.clear();
+            // Clear session storage
+            sessionStorage.clear();
+            // Navigate to home page
+            navigate('/');
+        } catch (error) {
+            console.error('Logout error:', error);
+        }
+    };
 
     if (!user) {
         return <div className="profile-loading">Loading profile...</div>;
@@ -20,11 +41,16 @@ const ProfilePage = () => {
         <div className="profile-container">
             <div className="profile-header">
                 <h2>My Profile</h2>
-                {!editing && (
-                    <button className="edit-button" onClick={() => setEditing(true)}>
-                        Edit Profile
+                <div className="profile-actions">
+                    {!editing && (
+                        <button className="edit-button" onClick={() => setEditing(true)}>
+                            Edit Profile
+                        </button>
+                    )}
+                    <button className="logout-button" onClick={handleLogout}>
+                        <FaSignOutAlt /> Logout
                     </button>
-                )}
+                </div>
             </div>
             {editing ? (
                 <UpdateProfileForm user={user} onCancel={() => setEditing(false)} />
