@@ -6,11 +6,12 @@ import { useEvent } from '../../context/EventContext';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { ErrorMessage } from '../shared/ErrorMessage';
 import { Button } from '../shared/Button';
+import { toast } from 'react-toastify';
 
 const EventDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
     const { 
         currentEvent, 
         loading, 
@@ -31,12 +32,21 @@ const EventDetails = () => {
 
     const handleBookTicket = () => {
         if (!isAuthenticated) {
+            // Store the current path for redirect after login
             localStorage.setItem('redirectAfterLogin', `/events/${id}`);
             navigate('/login');
             return;
         }
-        // If authenticated, show booking form
-        // We'll implement this later
+
+        // Check user role
+        if (user.role === 'Organizer' || user.role === 'System Admin') {
+            toast.info('Organizers and Admins cannot book tickets');
+            navigate('/dashboard');
+            return;
+        }
+
+        // If user is authenticated and is a Standard User, proceed to payment
+        navigate(`/payment/${id}`);
     };
 
     // Show loading spinner only when we have no event data and are loading
@@ -102,7 +112,9 @@ const EventDetails = () => {
                 {currentEvent.remainingTickets === 0 
                     ? 'Sold Out' 
                     : isAuthenticated 
-                        ? 'Book Tickets' 
+                        ? (user.role === 'Standard User' 
+                            ? 'Book Tickets' 
+                            : 'Not Available for Your Role')
                         : 'Login to Book Tickets'
                 }
             </Button>

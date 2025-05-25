@@ -111,6 +111,26 @@ export const AuthProvider = ({ children }) => {
             setRole(userData.role);
             setPendingUser(null);
             toast.success("Verification completed 🎇 ");
+
+            // Check for redirect path after successful login
+            const redirectPath = localStorage.getItem('redirectAfterLogin');
+            if (redirectPath) {
+                localStorage.removeItem('redirectAfterLogin');
+                navigate(redirectPath);
+            } else {
+                // Default redirect based on role
+                switch (userData.role) {
+                    case ROLES.USER:
+                        navigate('/');
+                        break;
+                    case ROLES.ORGANIZER:
+                    case ROLES.ADMIN:
+                        navigate('/dashboard');
+                        break;
+                    default:
+                        navigate('/');
+                }
+            }
             return response;
         } catch (error) {
             throw error;

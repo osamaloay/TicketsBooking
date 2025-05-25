@@ -12,6 +12,7 @@ const BookingROUTE= require('./Routes/BookingRoute');
 const UserROUTE = require('./Routes/UserRoute'); 
 const AuthROUTE = require('./Routes/AuthenticateRoute'); 
 const verifyOTPROUTE = require('./Routes/OTPROUTES');
+const stripeRoute = require('./Routes/StripeRoute');
 
 
 
@@ -39,7 +40,7 @@ app.use('/tickets', express.static(path.join(__dirname, 'tickets')));
 
 // List of routes 
 app.use('/api/v1', AuthROUTE);
-
+app.use('/api/v1/stripe', stripeRoute);
 app.use('/api/v1/users', UserROUTE);
 app.use('/api/v1/events', EventROUTE);
 app.use('/api/v1/bookings', BookingROUTE);

@@ -15,10 +15,28 @@ import NotFound from '../pages/NotFound'
 import EventList from '../components/events/EventList'
 import EventDetails from '../components/events/EventDetails'
 
-// Protected Route Component
-const ProtectedRoute = ({ children }) => {
-    const { isAuthenticated } = useAuth()
-    return isAuthenticated ? children : <Navigate to="/login" />
+// Payment Components
+import Payment from '../components/payment/Payment'
+
+// Booking Components
+import Bookings from '../components/bookings/Bookings'
+
+// Protected Route Component with role-based access
+const ProtectedRoute = ({ children, allowedRoles = [] }) => {
+    const { isAuthenticated, user } = useAuth()
+
+    if (!isAuthenticated) {
+        // Store the current path for redirect after login
+        localStorage.setItem('redirectAfterLogin', window.location.pathname);
+        return <Navigate to="/login" />
+    }
+
+    // If allowedRoles is specified, check user role
+    if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
+        return <Navigate to="/dashboard" />
+    }
+
+    return children
 }
 
 const AppRoutes = () => {
@@ -38,6 +56,20 @@ const AppRoutes = () => {
             <Route path="/profile" element={
                 <ProtectedRoute>
                     <Home />
+                </ProtectedRoute>
+            } />
+
+            {/* Payment Route - Only for Standard Users */}
+            <Route path="/payment/:id" element={
+                <ProtectedRoute allowedRoles={['Standard User']}>
+                    <Payment />
+                </ProtectedRoute>
+            } />
+
+            {/* Bookings Route - Only for Standard Users */}
+            <Route path="/bookings" element={
+                <ProtectedRoute allowedRoles={['Standard User']}>
+                    <Bookings />
                 </ProtectedRoute>
             } />
             

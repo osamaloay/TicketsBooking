@@ -182,7 +182,11 @@ export const bookingService = {
     // create booking done ✅
     createBooking: async (bookingData) => {
         try {
-            const response = await api.post('/bookings/', bookingData);
+            const response = await api.post('/bookings/', {
+                event: bookingData.event,
+                numberOfTickets: bookingData.numberOfTickets,
+                paymentMethodId: bookingData.paymentMethodId
+            });
             return response.data;
         } catch (error) {
             return handleError(error);
@@ -274,8 +278,16 @@ export const eventService = {
     } 
 }; 
 
-
-
+export const stripeService = {
+    getPublicKey: async () => {
+        try {
+            const response = await api.get('/stripe/public-key');
+            return response.data.publicKey;
+        } catch (error) {
+            return handleError(error);
+        }
+    }
+};
 
 // Add request interceptor to include auth token
 api.interceptors.request.use((config) => {
