@@ -8,11 +8,11 @@ const authorize = require('../Middleware/authorizeMiddleware');
 // create new event by Organizer
 router.post('/', authenticate, authorize('Organizer'), upload.single('image'), EventController.createEvent);
 // get all events
-router.get('/', authenticate, EventController.getApprovedEvents);
+router.get('/', EventController.getApprovedEvents);
 // get all events by organizer
 router.get('/all', authenticate, authorize('System Admin'), EventController.getAllEvents);
 // get details event by id
-router.get('/:id', authenticate, EventController.getEventById);
+router.get('/:id', EventController.getEventById);
 // update an event by organizer or admin 
 router.put('/:id', authenticate, authorize('Organizer', 'System Admin'), upload.single('image'), EventController.updateEvent);
 // delete an event by Organizer or admin 

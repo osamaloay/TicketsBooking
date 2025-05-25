@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { memo } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
 import { FaUser } from 'react-icons/fa';
 import './Layout.css';
 
-const Layout = ({ children }) => {
+const Layout = memo(({ children }) => {
     const { isAuthenticated } = useAuth();
 
     return (
@@ -59,6 +59,8 @@ const Layout = ({ children }) => {
             </div>
         </div>
     );
-};
+});
+
+Layout.displayName = 'Layout';
 
 export default Layout;
