@@ -56,11 +56,24 @@ export const AuthProvider = ({ children }) => {
     const register = async (userData) => {
         setRegisterLoading(true);
         try {
-            const response = await authService.register(userData);
+            await authService.register(userData);
+            // Set pending user and navigate after successful registration
             setPendingUser({ email: userData.email });
             toast.success("Verify your OTP  🎈 ");
-            return response;
+            
+            // Add a small delay to ensure state is updated
+            setTimeout(() => {
+                navigate('/verify', { 
+                    state: { 
+                        type: 'register',
+                        email: userData.email 
+                    } 
+                });
+            }, 100);
+            
         } catch (error) {
+            console.error('Registration error:', error);
+            toast.error(error.response?.data?.message || 'Registration failed');
             throw error;
         } finally {
             setRegisterLoading(false);
@@ -110,7 +123,7 @@ export const AuthProvider = ({ children }) => {
         setVerifyLoading(true);
         if (!pendingUser) throw new Error("No pending user found");
 
-        const response = await authService.verifyOTPRegister({ email: pendingUser.email, otp });
+        const response = await authService.verifyOTPRegister({ email: pendingUser.email, otp:otp });
         localStorage.setItem('token', response.token);
         const userData = await userService.getUserProfile();
         setUser(userData);
@@ -131,9 +144,15 @@ export const AuthProvider = ({ children }) => {
             });
             setResetEmail(null);
             toast.success("Verification completed 🎇 ");
+            // Navigate to login after successful verification
+            navigate('/login');
             return response;
         } catch (error) {
+            console.error('OTP verification error:', error);
+            toast.error(error.response?.data?.message || 'Verification failed');
             throw error;
+        } finally {
+            setVerifyLoading(false);
         }
     };
 
@@ -167,13 +186,22 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const forgotPassword = async(email) => { 
+    const forgotPassword = async (email) => { 
         try {
+            console.log('Sending forgot password request for:', email);
             const response = await authService.forgotPassword(email);
-            setResetEmail(email); // Store email for OTP verification
+            console.log('Got response:', response);
+            
+            // Set resetEmail state
+            setResetEmail(email);
+            
+            // Show success message
             toast.success("Verify your OTP  🎈 ");
+            
             return response;
         } catch (error) {
+            console.error('Forgot password error:', error);
+            toast.error(error.response?.data?.message || 'Failed to send OTP');
             throw error;
         }
     };

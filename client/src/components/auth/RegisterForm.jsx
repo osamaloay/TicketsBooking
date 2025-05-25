@@ -5,7 +5,7 @@ import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { ErrorMessage } from '../shared/ErrorMessage';
 
 const RegisterForm = () => {
-    const { register } = useAuth();
+    const { register, registerLoading } = useAuth();
     const [formData, setFormData] = useState({
         name: '',
         email: '',
@@ -13,18 +13,14 @@ const RegisterForm = () => {
         confirmPassword: '',
         role: 'Standard User' // Default role
     });
-    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
         setError(null);
 
-        // Validate passwords match
         if (formData.password !== formData.confirmPassword) {
-            setError('Passwords do not match');
-            setLoading(false);
+            setError("Passwords don't match");
             return;
         }
 
@@ -35,89 +31,88 @@ const RegisterForm = () => {
                 password: formData.password,
                 role: formData.role
             });
-            // OTP verification will be handled by the auth context
-            navigate('/verify', { state: { type: 'register' } });
         } catch (error) {
-            setError(error.message);
-        } finally {
-            setLoading(false);
+            console.error('Registration error:', error);
+            setError(error.response?.data?.message || 'Registration failed');
         }
     };
 
-    if (loading) return <LoadingSpinner />;
-    if (error) return <ErrorMessage message={error} />;
+    const handleChange = (e) => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    if (registerLoading) return <LoadingSpinner />;
 
     return (
         <form onSubmit={handleSubmit} className="auth-form">
-            <h2>Register</h2>
+            {error && <ErrorMessage message={error} />}
+            
             <div className="form-group">
-                <label htmlFor="name">Full Name</label>
+                <label htmlFor="name">Name</label>
                 <input
                     type="text"
                     id="name"
+                    name="name"
                     value={formData.name}
-                    onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        name: e.target.value
-                    }))}
+                    onChange={handleChange}
                     required
                 />
             </div>
+
             <div className="form-group">
                 <label htmlFor="email">Email</label>
                 <input
                     type="email"
                     id="email"
+                    name="email"
                     value={formData.email}
-                    onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        email: e.target.value
-                    }))}
+                    onChange={handleChange}
                     required
                 />
             </div>
+
+            <div className="form-group">
+                <label htmlFor="role">Role</label>
+                <select
+                    id="role"
+                    name="role"
+                    value={formData.role}
+                    onChange={handleChange}
+                    required
+                    className="form-control"
+                >
+                    <option value="Standard User">User</option>
+                    <option value="Organizer">Organizer</option>
+                </select>
+            </div>
+
             <div className="form-group">
                 <label htmlFor="password">Password</label>
                 <input
                     type="password"
                     id="password"
+                    name="password"
                     value={formData.password}
-                    onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        password: e.target.value
-                    }))}
+                    onChange={handleChange}
                     required
-                    minLength="6"
                 />
             </div>
+
             <div className="form-group">
                 <label htmlFor="confirmPassword">Confirm Password</label>
                 <input
                     type="password"
                     id="confirmPassword"
+                    name="confirmPassword"
                     value={formData.confirmPassword}
-                    onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        confirmPassword: e.target.value
-                    }))}
+                    onChange={handleChange}
                     required
-                    minLength="6"
                 />
             </div>
-            <div className="form-group">
-                <label htmlFor="role">Role</label>
-                <select
-                    id="role"
-                    value={formData.role}
-                    onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        role: e.target.value
-                    }))}
-                >
-                    <option value="Standard User">Standard User</option>
-                    <option value="Organizer">Organizer</option>
-                </select>
-            </div>
+
             <Button type="submit" variant="primary" fullWidth>
                 Register
             </Button>

@@ -39,7 +39,7 @@ export const authService = {
             const response = await api.post('/register', userData);
             return response.data;
         } catch (error) {
-            return handleError(error);
+            throw error;
         }
     },
     logout: async () => {

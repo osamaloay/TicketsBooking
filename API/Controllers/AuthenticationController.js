@@ -16,35 +16,43 @@ const SECRET_KEY = process.env.SECRET_KEY;
 
 const authenicationController = { 
     register : async (req,res)=> {
-        try{
+        try {
             const {name, email, password, role} = req.body;
             const existUser = await userModel.findOne({email});
             if(existUser){
                 return res.status(400).json({message: "User already exists"});
             } 
             await sendEmailROUTE.sendOTP(email);
-           
             
-            const hashedPassword = await bycrypt.hash(password, 10);// the 10 is the salt rounds
+            const hashedPassword = await bycrypt.hash(password, 10);
             tempUsers.set(email, {
                 name,
                 password: hashedPassword,
                 role,
-              });
-          
+            });
             
-              const tempUser = {
+            const tempUser = {
                 name,
                 email,
                 password: hashedPassword,
                 role,
-              };
-              
-              // Store in Redis for 5 minutes (300 seconds)
-              await redisClient.set(`register:${email}`, JSON.stringify(tempUser), { EX: 300 });
-              
-        }catch(error){
-
+            };
+            
+            // Store in Redis for 5 minutes (300 seconds)
+            await redisClient.set(`register:${email}`, JSON.stringify(tempUser), { EX: 300 });
+            
+            // Add this response
+            return res.status(200).json({ 
+                message: "Registration successful. Please verify your OTP",
+                email: email 
+            });
+            
+        } catch(error) {
+            console.error('Registration error:', error);
+            return res.status(500).json({ 
+                message: "Registration failed",
+                error: error.message 
+            });
         }
     },
     forgotPassword : async (req,res)=> {
