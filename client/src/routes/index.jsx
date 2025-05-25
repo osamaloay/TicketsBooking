@@ -1,6 +1,7 @@
 import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import '../styles/events';
 
 // Pages
 import Login from '../pages/Login'
@@ -9,6 +10,10 @@ import ForgotPassword from '../pages/ForgotPassword'
 import OTPVerification from '../pages/OTPVerification'
 import Home from '../pages/Home'
 import NotFound from '../pages/NotFound'
+
+// Event Components
+import EventList from '../components/events/EventList'
+import EventDetails from '../components/events/EventDetails'
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -22,13 +27,15 @@ const AppRoutes = () => {
     return (
         <Routes>
             {/* Public Routes */}
+            <Route path="/" element={<EventList />} />
+            <Route path="/events/:id" element={<EventDetails />} />
             <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
             <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/" />} />
             <Route path="/forgot-password" element={!isAuthenticated ? <ForgotPassword /> : <Navigate to="/" />} />
             <Route path="/verify" element={!isAuthenticated ? <OTPVerification /> : <Navigate to="/" />} />
             
             {/* Protected Routes */}
-            <Route path="/" element={
+            <Route path="/profile" element={
                 <ProtectedRoute>
                     <Home />
                 </ProtectedRoute>

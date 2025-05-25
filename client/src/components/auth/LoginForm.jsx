@@ -3,36 +3,45 @@ import { useAuth } from '../../context/AuthContext';
 import { Button } from '../shared/Button';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { ErrorMessage } from '../shared/ErrorMessage';
+import { useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
-    const { login, loginLoading } = useAuth();
-    const [formData, setFormData] = useState({
-        email: '',
-        password: ''
-    });
+    const navigate = useNavigate();
+    const { login } = useAuth();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setLoading(true);
         setError(null);
-        
+
         try {
-            // Just call login and let AuthContext handle the navigation
-            await login(formData.email, formData.password);
+            await login(email, password);
+            
+            // Check for redirect URL
+            const redirectUrl = localStorage.getItem('redirectAfterLogin');
+            if (redirectUrl) {
+                localStorage.removeItem('redirectAfterLogin'); // Clear the stored URL
+                navigate(redirectUrl);
+            } else {
+                navigate('/'); // Default redirect
+            }
         } catch (error) {
-            console.error('Login error:', error);
             setError(error.response?.data?.message || 'Login failed');
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+        setEmail(e.target.value);
+        setPassword(e.target.value);
     };
 
-    if (loginLoading) return <LoadingSpinner />;
+    if (loading) return <LoadingSpinner />;
 
     return (
         <form onSubmit={handleSubmit} className="auth-form">
@@ -44,7 +53,7 @@ const LoginForm = () => {
                     type="email"
                     id="email"
                     name="email"
-                    value={formData.email}
+                    value={email}
                     onChange={handleChange}
                     required
                 />
@@ -56,7 +65,7 @@ const LoginForm = () => {
                     type="password"
                     id="password"
                     name="password"
-                    value={formData.password}
+                    value={password}
                     onChange={handleChange}
                     required
                 />
