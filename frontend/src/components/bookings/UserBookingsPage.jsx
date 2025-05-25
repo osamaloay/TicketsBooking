@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';  
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
-import { toast } from 'react-toastify';
+import { useAuth } from '../../context/AuthContext'; 
+import { toast } from 'react-toastify'; 
 import { bookingService } from '../../services/bookingService';
 import BookingDetailsModal from './BookingDetailsModal';
 import './UserBookingsPage.css';
