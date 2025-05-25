@@ -6,34 +6,20 @@ import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { ErrorMessage } from '../shared/ErrorMessage';
 
 const ForgotPasswordForm = () => {
-    const navigate = useNavigate();
     const { forgotPassword } = useAuth();
     const [email, setEmail] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [success, setSuccess] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
-        setSuccess(false);
 
         try {
             console.log('Submitting forgot password for:', email);
             const response = await forgotPassword(email);
             console.log('Forgot password response:', response);
-            setSuccess(true);
-            
-            // Navigate after a short delay
-            setTimeout(() => {
-                navigate('/verify', { 
-                    state: { 
-                        type: 'forgot-password',
-                        email: email 
-                    } 
-                });
-            }, 2000);
         } catch (error) {
             console.error('Forgot password error:', error);
             setError(error.response?.data?.message || 'Failed to send OTP');
@@ -44,15 +30,6 @@ const ForgotPasswordForm = () => {
 
     if (loading) return <LoadingSpinner />;
     if (error) return <ErrorMessage message={error} />;
-    if (success) {
-        return (
-            <div className="auth-form">
-                <h2>Check Your Email</h2>
-                <p>We've sent a password reset OTP to {email}</p>
-                <p>Please wait while we redirect you...</p>
-            </div>
-        );
-    }
 
     return (
         <form onSubmit={handleSubmit} className="auth-form">

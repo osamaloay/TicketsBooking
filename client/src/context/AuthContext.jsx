@@ -133,18 +133,15 @@ export const AuthProvider = ({ children }) => {
         return response;
     };
 
-    const verifyOTPForgotPassword = async (otp) => {
+    const verifyOTPForgotPassword = async ({ email, otp, newPassword }) => {
         setVerifyLoading(true);
-        if (!resetEmail) throw new Error("No reset email found");
-        
         try {
             const response = await authService.verifyOTPForgotPassword({ 
-                email: resetEmail, 
-                otp 
+                email, 
+                otp,
+                newPassword 
             });
-            setResetEmail(null);
-            toast.success("Verification completed 🎇 ");
-            // Navigate to login after successful verification
+            toast.success("Password reset successful! Please login with your new password.");
             navigate('/login');
             return response;
         } catch (error) {
@@ -197,6 +194,14 @@ export const AuthProvider = ({ children }) => {
             
             // Show success message
             toast.success("Verify your OTP  🎈 ");
+            
+            // Navigate to verify page with proper state
+            navigate('/verify', { 
+                state: { 
+                    type: 'forgot-password',
+                    email: email 
+                } 
+            });
             
             return response;
         } catch (error) {

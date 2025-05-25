@@ -74,12 +74,16 @@ export const authService = {
             return handleError(error);
         }
     },
-    verifyOTPForgotPassword: async (otpData) => {
+    verifyOTPForgotPassword: async ({ email, otp, newPassword }) => {
         try {
-            const response = await api.post('/otp/verify/forgot', otpData);
+            const response = await api.post('/otp/verify/forgot', { 
+                email, 
+                otp, 
+                newPassword 
+            });
             return response.data;
         } catch (error) {
-            return handleError(error);
+            throw error;
         }
     }   
 };
