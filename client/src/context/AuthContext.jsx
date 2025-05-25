@@ -40,11 +40,20 @@ export const AuthProvider = ({ children }) => {
             const token = localStorage.getItem('token');
             if (token) {
                 try {
+                    // Validate token with backend
                     const userData = await userService.getUserProfile();
+                    if (!userData) {
+                        // If no user data, token is invalid
+                        localStorage.removeItem('token');
+                        setUser(null);
+                        setRole(null);
+                        return;
+                    }
                     setUser(userData);
                     setRole(userData.role);
                 } catch (error) {
                     console.error("Failed to load your data", error);
+                    // Clear invalid token
                     localStorage.removeItem('token');
                     setUser(null);
                     setRole(null);
@@ -173,21 +182,17 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         try {
             await authService.logout();
+        } catch (error) {
+            console.error('Logout error:', error);
+        } finally {
+            // Always clear everything, even if logout API call fails
             localStorage.removeItem('token');
+            localStorage.removeItem('redirectAfterLogin'); // Clear any stored redirects
             setUser(null);
             setRole(null);
             setPendingUser(null);
             setError(null);
             toast.success("Logged out successfully!");
-            // Redirect to home page after logout
-            navigate('/');
-        } catch (error) {
-            console.error('Logout error:', error);
-            toast.error('Failed to logout properly');
-            localStorage.removeItem('token');
-            setUser(null);
-            setRole(null);
-            setPendingUser(null);
             navigate('/');
         }
     };
@@ -212,7 +217,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const isAuthenticated = !!localStorage.getItem('token') && !!user;
+    const isAuthenticated = !!localStorage.getItem('token') && !!user && !!role;
     const isAdmin = role === ROLES.ADMIN;
     const isOrganizer = role === ROLES.ORGANIZER;
     const isUser = role === ROLES.USER;

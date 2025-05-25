@@ -2,6 +2,7 @@ import React from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import '../styles/events.css';
+import Layout from '../components/layout/Layout';
 
 // Pages
 import Login from '../pages/Login'
@@ -44,54 +45,51 @@ const AppRoutes = () => {
 
     return (
         <Routes>
-            {/* Public routes - Always accessible */}
-            <Route path="/" element={<EventList />} />
-            <Route path="/events" element={<EventList />} />
-            <Route path="/events/:id" element={<EventDetails />} />
+            {/* Public routes with layout */}
+            <Route path="/" element={
+                <Layout>
+                    <EventList />
+                </Layout>
+            } />
+            <Route path="/events" element={
+                <Layout>
+                    <EventList />
+                </Layout>
+            } />
+            <Route path="/events/:id" element={
+                <Layout>
+                    <EventDetails />
+                </Layout>
+            } />
             
-            {/* Auth routes - Redirect to home if already authenticated */}
-            <Route 
-                path="/login" 
-                element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
-            />
-            <Route 
-                path="/register" 
-                element={isAuthenticated ? <Navigate to="/" /> : <Register />} 
-            />
-            <Route 
-                path="/forgot-password" 
-                element={isAuthenticated ? <Navigate to="/" /> : <ForgotPassword />} 
-            />
-            <Route 
-                path="/verify" 
-                element={isAuthenticated ? <Navigate to="/" /> : <OTPVerification />} 
-            />
+            {/* Auth routes without layout */}
+            <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
+            <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/" />} />
+            <Route path="/forgot-password" element={!isAuthenticated ? <ForgotPassword /> : <Navigate to="/" />} />
+            <Route path="/verify" element={!isAuthenticated ? <OTPVerification /> : <Navigate to="/" />} />
             
-            {/* Protected routes - Authentication required */}
-            <Route 
-                path="/dashboard" 
-                element={
+            {/* Protected routes with layout */}
+            <Route path="/dashboard" element={
+                <Layout>
                     <ProtectedRoute>
                         <Home />
                     </ProtectedRoute>
-                } 
-            />
-            <Route 
-                path="/payment/:id" 
-                element={
+                </Layout>
+            } />
+            <Route path="/payment/:id" element={
+                <Layout>
                     <ProtectedRoute>
                         <Payment />
                     </ProtectedRoute>
-                } 
-            />
-            <Route 
-                path="/bookings" 
-                element={
+                </Layout>
+            } />
+            <Route path="/bookings" element={
+                <Layout>
                     <ProtectedRoute>
                         <Bookings />
                     </ProtectedRoute>
-                } 
-            />
+                </Layout>
+            } />
             
             {/* 404 Route */}
             <Route path="*" element={<NotFound />} />

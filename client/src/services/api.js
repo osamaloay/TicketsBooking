@@ -305,7 +305,21 @@ export const stripeService = {
     }
 };
 
-// Add request interceptor to include auth token
+// Add response interceptor for token validation
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            // Token is invalid or expired
+            localStorage.removeItem('token');
+            localStorage.removeItem('redirectAfterLogin');
+            window.location.href = '/';
+        }
+        return Promise.reject(error);
+    }
+);
+
+// Add request interceptor to include token
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -313,21 +327,5 @@ api.interceptors.request.use((config) => {
     }
     return config;
 });
-
-// Add response interceptor for error handling
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            // Handle unauthorized access
-            localStorage.removeItem('token');
-            window.location.href = '/login';
-        }
-        return Promise.reject(error);
-    }
-);
-
-
-
 
 export default api; 

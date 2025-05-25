@@ -34,7 +34,7 @@ const EventDetails = () => {
     const handleBookTicket = (e) => {
         e.preventDefault(); // Prevent default button behavior
         
-        if (!isAuthenticated) {
+        if (isAuthenticated) {
             // Store the current path for redirect after login
             localStorage.setItem('redirectAfterLogin', `/payment/${id}`);
             toast.warning('Please login to book tickets', {
