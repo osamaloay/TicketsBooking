@@ -210,9 +210,13 @@ export const bookingService = {
 };
 export const eventService = {
     // create new event by organizer done ✅
-    createEvent: async (eventData) => {
+    createEvent: async (formData) => {
         try {
-            const response = await api.post('/events/', eventData);
+            const response = await api.post('/events', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
             return response.data;
         } catch (error) {
             return handleError(error);
@@ -246,15 +250,18 @@ export const eventService = {
         }
     },
     // update event details by admin or organizer done ✅
-    updateEventById : async (id,eventData) => { 
-        try { 
-            const response = await api.put(`/events/${id}`,eventData);
-            return response.data; 
-        }
-        catch(error){ 
+    updateEvent: async (id, formData) => {
+        try {
+            const response = await api.put(`/events/${id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            return response.data;
+        } catch (error) {
             return handleError(error);
         }
-    }, 
+    },
     // DELETE event by id (admin or organizer only ) done ✅ 
     deleteEventById : async (id) => { 
         try { 

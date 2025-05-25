@@ -3,6 +3,7 @@ const router = express.Router();
 const UserController = require('../Controllers/UserController');
 const authenticate  = require('../Middleware/authMiddleware');
 const authorize = require('../Middleware/authorizeMiddleware');
+const { upload } = require('../config/cloudinary');
 
 // get all users ("only admin can get all users")
 router.get('/', authenticate, authorize('System Admin'), UserController.getAllUsers);
@@ -11,7 +12,11 @@ router.get('/', authenticate, authorize('System Admin'), UserController.getAllUs
 router.get('/profile', authenticate, UserController.getUserProfile);
 
 // update current user profile
-router.put('/profile', authenticate, UserController.updateUserProfile);
+router.put('/profile', 
+    authenticate, 
+    upload.single('profilePicture'), 
+    UserController.updateUserProfile
+);
 
 // get details of a specific user ("only admin can get user details")
 router.get('/:id', authenticate, authorize('System Admin'), UserController.getUsersDetails);

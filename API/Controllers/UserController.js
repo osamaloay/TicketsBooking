@@ -1,6 +1,7 @@
 const userModel = require('../Models/User');
 const bookingModel = require('../Models/Booking');
 const eventModel = require('../Models/Event');
+const { cloudinary } = require('../config/cloudinary');
 const mongoose = require('mongoose');
 
 
@@ -27,9 +28,31 @@ const userController = {
     },
     updateUserProfile : async (req, res) => {
         const userId = req.user.id;
-        const { name, email, profilePicture } = req.body;
+        const { name, email } = req.body;
         try {
-            const updatedUser = await userModel.findByIdAndUpdate(userId, { name, email, profilePicture }, { new: true });
+            const updateData = { name, email };
+
+            // Handle image upload if present
+            if (req.file) {
+                // Delete old image if exists
+                const user = await userModel.findById(userId);
+                if (user.profilePicture?.public_id) {
+                    await cloudinary.uploader.destroy(user.profilePicture.public_id);
+                }
+
+                // Add new image data
+                updateData.profilePicture = {
+                    url: req.file.path,
+                    public_id: req.file.filename
+                };
+            }
+
+            const updatedUser = await userModel.findByIdAndUpdate(
+                userId,
+                updateData,
+                { new: true }
+            );
+
             if (!updatedUser) {
                 return res.status(404).json({ message: 'User not found' });
             }

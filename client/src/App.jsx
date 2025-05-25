@@ -2,6 +2,7 @@ import React from 'react'
 import { BrowserRouter as Router } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { ToastContainer } from 'react-toastify'
+import { EventProvider } from './context/EventContext'
 
 // Import all necessary styles
 import 'react-toastify/dist/ReactToastify.css'  // Toast notifications
@@ -18,21 +19,23 @@ const App = () => {
     return (
         <Router>
             <AuthProvider>
-                <main className="app-container">
-                    <AppRoutes />
-                    <ToastContainer
-                        position="top-right"
-                        autoClose={5000}
-                        hideProgressBar={false}
-                        newestOnTop
-                        closeOnClick
-                        rtl={false}
-                        pauseOnFocusLoss
-                        draggable
-                        pauseOnHover
-                        theme="dark"
-                    />
-                </main>
+                <EventProvider>
+                    <main className="app-container">
+                        <AppRoutes />
+                        <ToastContainer
+                            position="top-right"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop
+                            closeOnClick
+                            rtl={false}
+                            pauseOnFocusLoss
+                            draggable
+                            pauseOnHover
+                            theme="dark"
+                        />
+                    </main>
+                </EventProvider>
             </AuthProvider>
         </Router>
     )

@@ -27,15 +27,20 @@ export const EventProvider = ({ children }) => {
         search: ''
     });
 
-    // Public methods (available to all users)
+    // Public method - no authentication required
     const fetchEvents = async () => {
-        setLoading(true);
+        // Only set loading if we don't have events yet
+        if (events.length === 0) {
+            setLoading(true);
+        }
+        
         try {
-            const response = await eventService.getAllEvents();
+            const response = await eventService.getAllApprovedEvents();
             setEvents(response);
+            setError(null); // Clear any previous errors
             return response;
         } catch (error) {
-            toast.error('Failed to fetch events');
+            console.error('Error fetching events:', error);
             setError(error.message);
         } finally {
             setLoading(false);
@@ -43,13 +48,19 @@ export const EventProvider = ({ children }) => {
     };
 
     const fetchEventById = async (id) => {
-        setLoading(true);
+        // Only set loading if we don't have the event data
+        if (!currentEvent || currentEvent._id !== id) {
+            setLoading(true);
+        }
+        
         try {
             const response = await eventService.getEventById(id);
             setCurrentEvent(response);
+            setError(null); // Clear any previous errors
             return response;
         } catch (error) {
             toast.error('Failed to fetch event details');
+            console.error('Error fetching event:', error);
             setError(error.message);
         } finally {
             setLoading(false);
@@ -76,14 +87,26 @@ export const EventProvider = ({ children }) => {
             toast.error('Please login to create events');
             return;
         }
-        if (user.role !== 'organizer') {
+        if (user.role !== 'Organizer') {
             toast.error('Only organizers can create events');
             return;
         }
 
         setLoading(true);
         try {
-            const response = await eventService.createEvent(eventData);
+            // Create FormData for image upload
+            const formData = new FormData();
+            
+            // Append all event data
+            Object.keys(eventData).forEach(key => {
+                if (key === 'image' && eventData[key] instanceof File) {
+                    formData.append('image', eventData[key]);
+                } else {
+                    formData.append(key, eventData[key]);
+                }
+            });
+
+            const response = await eventService.createEvent(formData);
             setEvents(prev => [...prev, response]);
             toast.success('Event created successfully');
             return response;
@@ -100,16 +123,28 @@ export const EventProvider = ({ children }) => {
             toast.error('Please login to update events');
             return;
         }
-        if (user.role !== 'organizer') {
-            toast.error('Only organizers can update events');
+        if (user.role !== 'Organizer' && user.role !== 'System Admin') {
+            toast.error('Only organizers and admins can update events');
             return;
         }
 
         setLoading(true);
         try {
-            const response = await eventService.updateEvent(id, eventData);
+            // Create FormData for image upload
+            const formData = new FormData();
+            
+            // Append all event data
+            Object.keys(eventData).forEach(key => {
+                if (key === 'image' && eventData[key] instanceof File) {
+                    formData.append('image', eventData[key]);
+                } else {
+                    formData.append(key, eventData[key]);
+                }
+            });
+
+            const response = await eventService.updateEvent(id, formData);
             setEvents(prev => prev.map(event => 
-                event.id === id ? response : event
+                event._id === id ? response : event
             ));
             toast.success('Event updated successfully');
             return response;
