@@ -7,6 +7,7 @@ import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { ErrorMessage } from '../shared/ErrorMessage';
 import { Button } from '../shared/Button';
 import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const EventDetails = () => {
     const { id } = useParams();
@@ -30,23 +31,42 @@ const EventDetails = () => {
         loadEvent();
     }, [loadEvent]);
 
-    const handleBookTicket = () => {
+    const handleBookTicket = (e) => {
+        e.preventDefault(); // Prevent default button behavior
+        
         if (!isAuthenticated) {
             // Store the current path for redirect after login
-            localStorage.setItem('redirectAfterLogin', `/events/${id}`);
+            localStorage.setItem('redirectAfterLogin', `/payment/${id}`);
+            toast.warning('Please login to book tickets', {
+                position: "top-center",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
             navigate('/login');
             return;
         }
 
         // Check user role
         if (user.role === 'Organizer' || user.role === 'System Admin') {
-            toast.info('Organizers and Admins cannot book tickets');
+            toast.error('Organizers and Admins cannot book tickets', {
+                position: "top-center",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+            });
             navigate('/dashboard');
             return;
         }
 
-        // If user is authenticated and is a Standard User, proceed to payment
-        navigate(`/payment/${id}`);
+        // Only navigate to payment if user is authenticated and is a Standard User
+        if (isAuthenticated && user.role === 'Standard User') {
+            navigate(`/payment/${id}`);
+        }
     };
 
     // Show loading spinner only when we have no event data and are loading

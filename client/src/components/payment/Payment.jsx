@@ -106,6 +106,22 @@ const Payment = () => {
     const [totalPrice, setTotalPrice] = useState(0);
     const [stripePromise, setStripePromise] = useState(null);
 
+    // Check authentication immediately
+    useEffect(() => {
+        if (!isAuthenticated) {
+            toast.warning('Please login to book tickets');
+            navigate('/login');
+            return;
+        }
+
+        // Check user role
+        if (user.role === 'Organizer' || user.role === 'System Admin') {
+            toast.error('Organizers and Admins cannot book tickets');
+            navigate('/dashboard');
+            return;
+        }
+    }, [isAuthenticated, user.role, navigate]);
+
     // Fetch Stripe public key on component mount
     useEffect(() => {
         const initializeStripe = async () => {
@@ -122,18 +138,8 @@ const Payment = () => {
     }, []);
 
     useEffect(() => {
-        if (!isAuthenticated) {
-            navigate('/login');
-            return;
-        }
-
-        if (user.role !== 'Standard User') {
-            navigate('/dashboard');
-            return;
-        }
-
         fetchEventById(id);
-    }, [id, isAuthenticated, user.role]);
+    }, [id]);
 
     useEffect(() => {
         if (currentEvent) {
@@ -152,6 +158,16 @@ const Payment = () => {
         toast.success('Booking successful!');
         navigate('/bookings');
     };
+
+    // If not authenticated, don't render anything
+    if (!isAuthenticated) {
+        return null;
+    }
+
+    // If user is not a Standard User, don't render anything
+    if (user.role !== 'Standard User') {
+        return null;
+    }
 
     if (!stripePromise) {
         return <LoadingSpinner />;

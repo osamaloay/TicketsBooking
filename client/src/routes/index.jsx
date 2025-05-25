@@ -44,34 +44,54 @@ const AppRoutes = () => {
 
     return (
         <Routes>
-            {/* Public Routes */}
+            {/* Public routes - Always accessible */}
             <Route path="/" element={<EventList />} />
+            <Route path="/events" element={<EventList />} />
             <Route path="/events/:id" element={<EventDetails />} />
-            <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to="/" />} />
-            <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to="/" />} />
-            <Route path="/forgot-password" element={!isAuthenticated ? <ForgotPassword /> : <Navigate to="/" />} />
-            <Route path="/verify" element={!isAuthenticated ? <OTPVerification /> : <Navigate to="/" />} />
             
-            {/* Protected Routes */}
-            <Route path="/profile" element={
-                <ProtectedRoute>
-                    <Home />
-                </ProtectedRoute>
-            } />
-
-            {/* Payment Route - Only for Standard Users */}
-            <Route path="/payment/:id" element={
-                <ProtectedRoute allowedRoles={['Standard User']}>
-                    <Payment />
-                </ProtectedRoute>
-            } />
-
-            {/* Bookings Route - Only for Standard Users */}
-            <Route path="/bookings" element={
-                <ProtectedRoute allowedRoles={['Standard User']}>
-                    <Bookings />
-                </ProtectedRoute>
-            } />
+            {/* Auth routes - Redirect to home if already authenticated */}
+            <Route 
+                path="/login" 
+                element={isAuthenticated ? <Navigate to="/" /> : <Login />} 
+            />
+            <Route 
+                path="/register" 
+                element={isAuthenticated ? <Navigate to="/" /> : <Register />} 
+            />
+            <Route 
+                path="/forgot-password" 
+                element={isAuthenticated ? <Navigate to="/" /> : <ForgotPassword />} 
+            />
+            <Route 
+                path="/verify" 
+                element={isAuthenticated ? <Navigate to="/" /> : <OTPVerification />} 
+            />
+            
+            {/* Protected routes - Authentication required */}
+            <Route 
+                path="/dashboard" 
+                element={
+                    <ProtectedRoute>
+                        <Home />
+                    </ProtectedRoute>
+                } 
+            />
+            <Route 
+                path="/payment/:id" 
+                element={
+                    <ProtectedRoute>
+                        <Payment />
+                    </ProtectedRoute>
+                } 
+            />
+            <Route 
+                path="/bookings" 
+                element={
+                    <ProtectedRoute>
+                        <Bookings />
+                    </ProtectedRoute>
+                } 
+            />
             
             {/* 404 Route */}
             <Route path="*" element={<NotFound />} />

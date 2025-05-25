@@ -46,7 +46,12 @@ export const AuthProvider = ({ children }) => {
                 } catch (error) {
                     console.error("Failed to load your data", error);
                     localStorage.removeItem('token');
+                    setUser(null);
+                    setRole(null);
                 }
+            } else {
+                setUser(null);
+                setRole(null);
             }
             setLoading(false);
         };
@@ -118,18 +123,8 @@ export const AuthProvider = ({ children }) => {
                 localStorage.removeItem('redirectAfterLogin');
                 navigate(redirectPath);
             } else {
-                // Default redirect based on role
-                switch (userData.role) {
-                    case ROLES.USER:
-                        navigate('/');
-                        break;
-                    case ROLES.ORGANIZER:
-                    case ROLES.ADMIN:
-                        navigate('/dashboard');
-                        break;
-                    default:
-                        navigate('/');
-                }
+                // Always redirect to home page after login
+                navigate('/');
             }
             return response;
         } catch (error) {
@@ -150,6 +145,8 @@ export const AuthProvider = ({ children }) => {
         setRole(userData.role);
         setPendingUser(null);
         toast.success("Verification completed 🎇 ");
+        // Redirect to home page after registration
+        navigate('/');
         return response;
     };
 
@@ -175,31 +172,23 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
-            // Call the logout endpoint
-            const response = await authService.logout();
-            
-            // Clear all auth-related state
+            await authService.logout();
             localStorage.removeItem('token');
             setUser(null);
             setRole(null);
             setPendingUser(null);
             setError(null);
-            
-            // Show success message
             toast.success("Logged out successfully!");
-            
-            // Navigate to login page
-            navigate('/login');
+            // Redirect to home page after logout
+            navigate('/');
         } catch (error) {
             console.error('Logout error:', error);
             toast.error('Failed to logout properly');
-            
-            // Even if the API call fails, clear local state
             localStorage.removeItem('token');
             setUser(null);
             setRole(null);
             setPendingUser(null);
-            navigate('/login');
+            navigate('/');
         }
     };
 
@@ -223,7 +212,7 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const isAuthenticated = !!user;
+    const isAuthenticated = !!localStorage.getItem('token') && !!user;
     const isAdmin = role === ROLES.ADMIN;
     const isOrganizer = role === ROLES.ORGANIZER;
     const isUser = role === ROLES.USER;
