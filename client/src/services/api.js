@@ -111,7 +111,11 @@ export const userService = {
     // update current user profile done ✅
     updateUserProfile: async (userData) => {
         try {
-            const response = await api.put('/users/profile', userData);
+            const response = await api.put('/users/profile', userData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             return response.data;
         } catch (error) {   
             return handleError(error);

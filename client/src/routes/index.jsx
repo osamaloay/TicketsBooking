@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import '../styles/events.css';
 import Layout from '../components/Layout/Layout';
+import ProfilePage from '../components/profile/ProfilePage';
 
 // Pages
 import Login from '../pages/Login'
@@ -98,6 +99,7 @@ const AppRoutes = () => {
                     </ProtectedRoute>
                 </Layout>
             } />
+            <Route path="/profile" element={<ProfilePage />} />
             
             {/* 404 Route */}
             <Route path="*" element={<NotFound />} />

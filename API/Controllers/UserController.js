@@ -49,16 +49,18 @@ const userController = {
 
             const updatedUser = await userModel.findByIdAndUpdate(
                 userId,
-                updateData,
-                { new: true }
+                { $set: updateData },
+                { new: true, runValidators: true }
             );
 
             if (!updatedUser) {
                 return res.status(404).json({ message: 'User not found' });
             }
+            console.log('Updated User:', updatedUser);
             res.status(200).json(updatedUser);
         } catch (error) {
-            res.status(500).json({ message: 'Error updating user profile', error });
+            console.error('Error updating user profile:', error);
+            res.status(500).json({ message: 'Error updating user profile', error: error.message });
         }
     },
     getUserProfile : async (req, res) => {
@@ -106,6 +108,7 @@ const userController = {
             const userId = req.user.id;
             const bookings = await bookingModel.find({ user: userId }).populate('event');
             res.status(200).json(bookings);
+
         } catch (error) {
             res.status(500).json({ message: 'Error fetching user bookings', error });
         }

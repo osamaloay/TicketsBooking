@@ -57,7 +57,7 @@ const Layout = memo(({ children }) => {
                             </div>
                         </div>
                     ) : (
-                        <Link to="/dashboard">
+                        <Link to="/profile">
                             <FaUser className="user-icon" />
                         </Link>
                     )}
