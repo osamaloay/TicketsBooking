@@ -2,211 +2,160 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEvent } from '../../context/EventContext';
 import { useAuth } from '../../context/AuthContext';
+import { useBooking } from '../../context/BookingContext';
+import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { toast } from 'react-toastify';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { ErrorMessage } from '../shared/ErrorMessage';
 import { Button } from '../shared/Button';
-import { toast } from 'react-toastify';
-import { loadStripe } from '@stripe/stripe-js';
-import { stripeService } from '../../services/api';
-import {
-  CardElement,
-  Elements,
-  useStripe,
-  useElements,
-} from '@stripe/react-stripe-js';
-import { bookingService } from '../../services/api';
-
-const PaymentForm = ({ event, ticketCount, totalPrice, onSuccess }) => {
-  const stripe = useStripe();
-  const elements = useElements();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    setLoading(true);
-    setError(null);
-
-    if (!stripe || !elements) {
-      setError('Payment system not initialized');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      // Create payment method
-      const { error: stripeError, paymentMethod } = await stripe.createPaymentMethod({
-        type: 'card',
-        card: elements.getElement(CardElement),
-      });
-
-      if (stripeError) {
-        setError(stripeError.message);
-        return;
-      }
-
-      // Create booking with payment method
-      const bookingData = {
-        event: event._id,
-        numberOfTickets: ticketCount,
-        paymentMethodId: paymentMethod.id
-      };
-
-      const response = await bookingService.createBooking(bookingData);
-      onSuccess(response);
-    } catch (error) {
-      setError(error.message || 'Payment failed. Please try again.');
-      toast.error(error.message || 'Payment failed. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="payment-form">
-      <div className="card-element-container">
-        <CardElement
-          options={{
-            style: {
-              base: {
-                fontSize: '16px',
-                color: '#424770',
-                '::placeholder': {
-                  color: '#aab7c4',
-                },
-              },
-              invalid: {
-                color: '#9e2146',
-              },
-            },
-          }}
-        />
-      </div>
-
-      {error && <div className="error-message">{error}</div>}
-
-      <Button
-        type="submit"
-        variant="primary"
-        fullWidth
-        disabled={!stripe || loading}
-      >
-        {loading ? 'Processing...' : `Pay $${totalPrice}`}
-      </Button>
-    </form>
-  );
-};
+import '../payment/Payment.css';
 
 const Payment = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { isAuthenticated, user } = useAuth();
-    const { currentEvent, loading, error, fetchEventById } = useEvent();
+    const stripe = useStripe();
+    const elements = useElements();
+    const { currentEvent, loading: eventLoading, error: eventError, fetchEventById } = useEvent();
+    const { user } = useAuth();
+    const { createBooking, loading: bookingLoading } = useBooking();
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
     const [ticketCount, setTicketCount] = useState(1);
-    const [totalPrice, setTotalPrice] = useState(0);
-    const [stripePromise, setStripePromise] = useState(null);
-
-    // Check authentication immediately
-    useEffect(() => {
-        if (!isAuthenticated) {
-            toast.warning('Please login to book tickets');
-            navigate('/login');
-            return;
-        }
-
-        // Check user role
-        if (user.role === 'Organizer' || user.role === 'System Admin') {
-            toast.error('Organizers and Admins cannot book tickets');
-            navigate('/dashboard');
-            return;
-        }
-    }, [isAuthenticated, user.role, navigate]);
-
-    // Fetch Stripe public key on component mount
-    useEffect(() => {
-        const initializeStripe = async () => {
-            try {
-                const publicKey = await stripeService.getPublicKey();
-                setStripePromise(loadStripe(publicKey));
-            } catch (error) {
-                toast.error('Failed to initialize payment system');
-                console.error('Stripe initialization error:', error);
-            }
-        };
-
-        initializeStripe();
-    }, []);
+    const [cardComplete, setCardComplete] = useState(false);
 
     useEffect(() => {
         fetchEventById(id);
-    }, [id]);
+    }, [id, fetchEventById]);
 
-    useEffect(() => {
-        if (currentEvent) {
-            setTotalPrice(currentEvent.ticketPricing * ticketCount);
+    const handleCardChange = (event) => {
+        setCardComplete(event.complete);
+        setError(event.error ? event.error.message : null);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
+
+        if (!stripe || !elements) {
+            return;
         }
-    }, [ticketCount, currentEvent]);
 
-    const handleTicketCountChange = (e) => {
-        const count = parseInt(e.target.value);
-        if (count > 0 && count <= currentEvent.remainingTickets) {
-            setTicketCount(count);
+        try {
+            // Create payment method
+            const { error: paymentMethodError, paymentMethod } = await stripe.createPaymentMethod({
+                type: 'card',
+                card: elements.getElement(CardElement),
+                billing_details: {
+                    name: user.name,
+                    email: user.email,
+                },
+            });
+
+            if (paymentMethodError) {
+                throw new Error(paymentMethodError.message);
+            }
+
+            // Create booking using your BookingContext
+            await createBooking({
+                event: id,
+                user: user._id,
+                numberOfTickets: ticketCount,
+                paymentMethodId: paymentMethod.id
+            });
+            
+            toast.success('Booking confirmed! Check your email for tickets.');
+            navigate('/bookings');
+        } catch (err) {
+            setError(err.message);
+            toast.error(err.message);
+        } finally {
+            setLoading(false);
         }
     };
 
-    const handlePaymentSuccess = (response) => {
-        toast.success('Booking successful!');
-        navigate('/bookings');
-    };
-
-    // If not authenticated, don't render anything
-    if (!isAuthenticated) {
-        return null;
-    }
-
-    // If user is not a Standard User, don't render anything
-    if (user.role !== 'Standard User') {
-        return null;
-    }
-
-    if (!stripePromise) {
-        return <LoadingSpinner />;
-    }
-
-    if (loading) return <LoadingSpinner />;
-    if (error) return <ErrorMessage message={error} />;
+    if (eventLoading || bookingLoading) return <LoadingSpinner />;
+    if (eventError) return <ErrorMessage message={eventError} />;
     if (!currentEvent) return <ErrorMessage message="Event not found" />;
 
     return (
         <div className="payment-container">
-            <h2>Book Tickets for {currentEvent.title}</h2>
-            
-            <div className="ticket-selection">
-                <label>
-                    Number of Tickets:
-                    <input
-                        type="number"
-                        min="1"
-                        max={currentEvent.remainingTickets}
-                        value={ticketCount}
-                        onChange={handleTicketCountChange}
-                    />
-                </label>
-            </div>
+            <div className="payment-card">
+                <div className="payment-header">
+                    <h2>Complete Your Booking</h2>
+                    <p className="event-title">{currentEvent.title}</p>
+                </div>
 
-            <div className="price-summary">
-                <p>Price per ticket: ${currentEvent.ticketPricing}</p>
-                <p>Total price: ${totalPrice}</p>
-            </div>
+                <div className="event-summary">
+                    <div className="summary-item">
+                        <span>Date:</span>
+                        <span>{new Date(currentEvent.date).toLocaleDateString()}</span>
+                    </div>
+                    <div className="summary-item">
+                        <span>Location:</span>
+                        <span>{currentEvent.location}</span>
+                    </div>
+                    <div className="summary-item">
+                        <span>Price per ticket:</span>
+                        <span>${currentEvent.ticketPricing}</span>
+                    </div>
+                </div>
 
-            <Elements stripe={stripePromise}>
-                <PaymentForm
-                    event={currentEvent}
-                    ticketCount={ticketCount}
-                    totalPrice={totalPrice}
-                    onSuccess={handlePaymentSuccess}
-                />
-            </Elements>
+                <div className="ticket-selection">
+                    <label>
+                        Number of Tickets:
+                        <select 
+                            value={ticketCount} 
+                            onChange={(e) => setTicketCount(Number(e.target.value))}
+                            className="ticket-select"
+                        >
+                            {[...Array(currentEvent.remainingTickets)].map((_, i) => (
+                                <option key={i + 1} value={i + 1}>
+                                    {i + 1}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                    <div className="total-price">
+                        <span>Total Amount:</span>
+                        <span>${(currentEvent.ticketPricing * ticketCount).toFixed(2)}</span>
+                    </div>
+                </div>
+
+                <form onSubmit={handleSubmit} className="payment-form">
+                    <div className="card-element-container">
+                        <label>Card Details</label>
+                        <CardElement
+                            onChange={handleCardChange}
+                            options={{
+                                style: {
+                                    base: {
+                                        fontSize: '16px',
+                                        color: '#424770',
+                                        '::placeholder': {
+                                            color: '#aab7c4',
+                                        },
+                                    },
+                                    invalid: {
+                                        color: '#9e2146',
+                                    },
+                                },
+                            }}
+                        />
+                    </div>
+
+                    {error && <div className="error-message">{error}</div>}
+
+                    <Button
+                        type="submit"
+                        disabled={!stripe || loading || !cardComplete}
+                        variant="primary"
+                        fullWidth
+                    >
+                        {loading ? 'Processing...' : `Pay $${(currentEvent.ticketPricing * ticketCount).toFixed(2)}`}
+                    </Button>
+                </form>
+            </div>
         </div>
     );
 };

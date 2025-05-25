@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'http://localhost:5000/api/v1',
+    baseURL: import.meta.env.VITE_API_URL,
     withCredentials: true,
     headers: {
         'Content-Type': 'application/json'
@@ -9,7 +9,7 @@ const api = axios.create({
     withCredentials : true 
     
 });
-
+    
 // handle error
 const handleError = (error) => {
     if (error.response) {
@@ -149,9 +149,12 @@ export const userService = {
     // get current user bookings done ✅
     getUserBookings: async () => {
         try {
-            const response = await api.get('/users/bookings');
+            const response = await api.get('/users/booking');
             return response.data;
         } catch (error) {
+            if (error.response?.status === 403) {
+                throw new Error(`Access denied: ${error.response.data.message}`);
+            }
             return handleError(error);
         }
     },
@@ -184,6 +187,7 @@ export const bookingService = {
         try {
             const response = await api.post('/bookings/', {
                 event: bookingData.event,
+                user: bookingData.user,
                 numberOfTickets: bookingData.numberOfTickets,
                 paymentMethodId: bookingData.paymentMethodId
             });
@@ -326,6 +330,8 @@ api.interceptors.request.use((config) => {
         config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
+}, (error) => {
+    return Promise.reject(error);
 });
 
 export default api; 

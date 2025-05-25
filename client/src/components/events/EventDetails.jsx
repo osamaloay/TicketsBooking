@@ -32,41 +32,17 @@ const EventDetails = () => {
     }, [loadEvent]);
 
     const handleBookTicket = (e) => {
-        e.preventDefault(); // Prevent default button behavior
+        e.preventDefault();
         
-        if (isAuthenticated) {
-            // Store the current path for redirect after login
+        if (!isAuthenticated) {
             localStorage.setItem('redirectAfterLogin', `/payment/${id}`);
-            toast.warning('Please login to book tickets', {
-                position: "top-center",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
+            toast.warning('Please login to book tickets');
             navigate('/login');
             return;
         }
 
-        // Check user role
-        if (user.role === 'Organizer' || user.role === 'System Admin') {
-            toast.error('Organizers and Admins cannot book tickets', {
-                position: "top-center",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-            });
-            navigate('/dashboard');
-            return;
-        }
-
-        // Only navigate to payment if user is authenticated and is a Standard User
-        if (isAuthenticated && user.role === 'Standard User') {
-            navigate(`/payment/${id}`);
-        }
+        // If authenticated, proceed to payment
+        navigate(`/payment/${id}`);
     };
 
     // Show loading spinner only when we have no event data and are loading

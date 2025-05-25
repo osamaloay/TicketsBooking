@@ -121,6 +121,7 @@ export const AuthProvider = ({ children }) => {
             const response = await authService.verifyOTPLogin({ email: pendingUser.email, otp });
             localStorage.setItem('token', response.token);
             const userData = await userService.getUserProfile();
+            console.log('User data after login:', userData);
             setUser(userData);
             setRole(userData.role);
             setPendingUser(null);
@@ -222,6 +223,8 @@ export const AuthProvider = ({ children }) => {
     const isOrganizer = role === ROLES.ORGANIZER;
     const isUser = role === ROLES.USER;
 
+    console.log('Current user role:', role);
+
     return (
         <AuthContext.Provider
             value={{
@@ -237,6 +240,7 @@ export const AuthProvider = ({ children }) => {
                 isAdmin,
                 isOrganizer,
                 isUser,
+                ROLES,
                 register,
                 login,
                 verifyOTPLogin,

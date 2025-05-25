@@ -1,7 +1,7 @@
 // client/src/components/bookings/Bookings.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { bookingService } from '../../services/api';
+import { bookingService , userService} from '../../services/api';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { ErrorMessage } from '../shared/ErrorMessage';
 import { Button } from '../shared/Button';
@@ -20,7 +20,7 @@ const Bookings = () => {
 
     const fetchBookings = async () => {
         try {
-            const response = await bookingService.getUserBookings();
+            const response = await userService.getUserBookings();
             setBookings(response);
             setError(null);
         } catch (error) {

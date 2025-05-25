@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState } from 'react';
-import { bookingService } from '../services/api';
+import { bookingService, userService } from '../services/api';
 import { toast } from 'react-toastify';
 import { useAuth } from './AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const BookingContext = createContext();
 
@@ -19,9 +20,10 @@ export const BookingProvider = ({ children }) => {
     const [currentBooking, setCurrentBooking] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     // Create booking
-    const createBooking = async (eventId, numberOfTickets, paymentMethodId) => {
+    const createBooking = async (bookingData) => {
         if (!isAuthenticated) {
             toast.error('Please login to book tickets');
             return;
@@ -29,14 +31,12 @@ export const BookingProvider = ({ children }) => {
 
         setLoading(true);
         try {
-            const bookingData = {
-                event: eventId,
-                user: user.id,
-                numberOfTickets: numberOfTickets.toString(), // Backend expects string
-                paymentMethodId: paymentMethodId
-            };
-
-            const response = await bookingService.createBooking(bookingData);
+            const response = await bookingService.createBooking({
+                event: bookingData.event,
+                user: bookingData.user,
+                numberOfTickets: bookingData.numberOfTickets.toString(),
+                paymentMethodId: bookingData.paymentMethodId
+            });
             setBookings(prev => [...prev, response]);
             toast.success('Booking created successfully');
             return response;
@@ -101,12 +101,18 @@ export const BookingProvider = ({ children }) => {
 
         setLoading(true);
         try {
-            const response = await bookingService.getUserBookings();
+            const response = await userService.getUserBookings();
             setBookings(response);
             return response;
         } catch (error) {
-            toast.error('Failed to fetch bookings');
-            setError(error.message);
+            const errorMessage = error.message || 'Failed to fetch bookings';
+            toast.error(errorMessage);
+            setError(errorMessage);
+            
+            // If unauthorized, redirect to login
+            if (error.response?.status === 403) {
+                navigate('/login');
+            }
         } finally {
             setLoading(false);
         }
