@@ -282,9 +282,25 @@ export const stripeService = {
     getPublicKey: async () => {
         try {
             const response = await api.get('/stripe/public-key');
-            return response.data.publicKey;
+            console.log('Stripe public key response:', response.data);
+            
+            if (!response.data?.publicKey) {
+                console.error('Invalid response format:', response.data);
+                throw new Error('Invalid Stripe public key response');
+            }
+            
+            const publicKey = response.data.publicKey;
+            
+            // Validate the public key format
+            if (!publicKey.startsWith('pk_test_') && !publicKey.startsWith('pk_live_')) {
+                console.error('Invalid public key format:', publicKey);
+                throw new Error('Invalid Stripe public key format');
+            }
+            
+            return publicKey;
         } catch (error) {
-            return handleError(error);
+            console.error('Error fetching Stripe public key:', error);
+            throw new Error('Failed to initialize payment system');
         }
     }
 };
