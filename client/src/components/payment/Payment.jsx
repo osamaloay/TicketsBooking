@@ -34,6 +34,7 @@ const PaymentForm = ({ event, ticketCount, totalPrice, onSuccess }) => {
     }
 
     try {
+      // Create payment method
       const { error: stripeError, paymentMethod } = await stripe.createPaymentMethod({
         type: 'card',
         card: elements.getElement(CardElement),
@@ -44,6 +45,7 @@ const PaymentForm = ({ event, ticketCount, totalPrice, onSuccess }) => {
         return;
       }
 
+      // Create booking with payment method
       const bookingData = {
         event: event._id,
         numberOfTickets: ticketCount,
