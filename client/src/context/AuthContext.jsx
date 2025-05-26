@@ -97,14 +97,14 @@ export const AuthProvider = ({ children }) => {
             toast.success("Verify your OTP  🎈 ");
             
             // Add a small delay to ensure state is updated
-            setTimeout(() => {
+        
                 navigate('/verify', { 
                     state: { 
                         type: 'register',
                         email: userData.email 
                     } 
                 });
-            }, 100);
+             
             
         } catch (error) {
             console.error('Registration error:', error);

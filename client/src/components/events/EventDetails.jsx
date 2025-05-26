@@ -10,7 +10,7 @@ import './EventDetails.css';
 const EventDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { ROLES } = useAuth();
+    const { ROLES, isAuthenticated, user } = useAuth();
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [ticketQuantity, setTicketQuantity] = useState(1);
@@ -62,19 +62,26 @@ const EventDetails = () => {
     };
 
     const handleBookTickets = async () => {
-        if (isEventOrganizer) {
-            toast.error('You cannot book tickets for your own event');
+        if (!isAuthenticated) {
+            toast.error('Please login to book tickets');
             return;
         }
 
-        try {
-            await eventService.bookTickets(id, ticketQuantity);
-            toast.success('Tickets booked successfully!');
-            navigate('/my-tickets');
-        } catch (error) {
-            console.error('Error booking tickets:', error);
-            toast.error(error.response?.data?.message || 'Failed to book tickets');
+        if (!ticketQuantity) {
+            toast.error('Please select number of tickets');
+            return;
         }
+
+        // Navigate to payment page with event and ticket details
+        navigate(`/payment/${event._id}`, {
+            state: {
+                eventId: event._id,
+                eventTitle: event.title,
+                ticketPrice: event.ticketPricing,
+                ticketQuantity: ticketQuantity,
+                totalAmount: ticketQuantity * event.ticketPricing
+            }
+        });
     };
 
     if (loading) {
@@ -164,7 +171,7 @@ const EventDetails = () => {
                                     className="book-tickets-button"
                                     onClick={handleBookTickets}
                                 >
-                                    Book Tickets
+                                    Proceed to Payment
                                 </button>
                             </div>
                         )}
