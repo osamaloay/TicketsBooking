@@ -1,79 +1,51 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaCalendarAlt, FaMapMarkerAlt, FaTicketAlt } from 'react-icons/fa';
+import PropTypes from 'prop-types';
 import './EventCard.css';
 
-const EventCard = ({ event }) => {
+/**
+ * Displays a summary card for a single event.
+ * Clicking navigates to the event details page.
+ */
+export default function EventCard({ event }) {
   const navigate = useNavigate();
-
-  const formatDate = (dateString) => {
-    const options = { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    };
-    return new Date(dateString).toLocaleDateString('en-US', options);
-  };
-
-  const handleEventClick = () => {
-    console.log('Event ID:', event._id); // Debug log
-    navigate(`/events/${event._id}`);
-  };
+  const {
+    _id,
+    title,
+    date,
+    location,
+    ticketPricing,
+    remainingTickets,
+  } = event;
 
   return (
-    <div className="event-card" onClick={handleEventClick}>
-      <div className="event-image-container">
-        <img 
-          src={event.image || 'https://via.placeholder.com/400x200?text=Event+Image'} 
-          alt={event.title} 
-          className="event-image" 
-        />
-        <div className={`status-badge ${event.status.toLowerCase()}`}>
-          {event.status}
-        </div>
-        {event.remainingTickets <= 10 && event.remainingTickets > 0 && (
-          <div className="ticket-warning">
-            Only {event.remainingTickets} tickets left!
-          </div>
-        )}
-        {event.remainingTickets === 0 && (
-          <div className="sold-out-badge">Sold Out</div>
-        )}
-      </div>
-      <div className="event-content">
-        <h3 className="event-title">{event.title}</h3>
-        <p className="event-description">{event.description}</p>
-        <div className="event-details">
-          <div className="detail-item">
-            <FaCalendarAlt className="icon" />
-            <span>{formatDate(event.date)}</span>
-          </div>
-          <div className="detail-item">
-            <FaMapMarkerAlt className="icon" />
-            <span>{event.location}</span>
-          </div>
-          <div className="detail-item">
-            <FaTicketAlt className="icon" />
-            <span>{event.remainingTickets} tickets left</span>
-          </div>
-        </div>
-        <div className="event-footer">
-          <span className="event-price">${event.ticketPricing}</span>
-          <button 
-            className="view-details-button"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleEventClick();
-            }}
-          >
-            View Details
-          </button>
-        </div>
-      </div>
+    <div
+      className="event-card"
+      role="button"
+      tabIndex={0}
+      onClick={() => navigate(`/events/${_id}`)}
+      onKeyPress={() => navigate(`/events/${_id}`)}
+    >
+      <h3>{title}</h3>
+      <p className="event-date">{new Date(date).toLocaleDateString()}</p>
+      <p className="event-location">{location}</p>
+      <p className="event-price">Price: {ticketPricing.toLocaleString()} EGP</p>
+      <p className="event-remaining">
+        {remainingTickets > 0
+          ? `${remainingTickets} tickets left`
+          : 'Sold Out'}
+      </p>
     </div>
   );
-};
+}
 
-export default EventCard; 
+EventCard.propTypes = {
+  event: PropTypes.shape({
+    _id: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    date: PropTypes.string.isRequired,
+    location: PropTypes.string.isRequired,
+    ticketPricing: PropTypes.number.isRequired,
+    remainingTickets: PropTypes.number.isRequired,
+  }).isRequired,
+};

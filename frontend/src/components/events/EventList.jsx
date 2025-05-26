@@ -1,29 +1,36 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 import EventCard from './EventCard';
+import { eventService } from '../../services/eventService';
 import './EventList.css';
 
-const EventList = ({ events, title, isFeatured = false }) => {
-  const navigate = useNavigate();
+/**
+ * Fetches and displays a grid of approved events.
+ */
+export default function EventList() {
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleEventClick = (eventId) => {
-    navigate(`/events/${eventId}`);
-  };
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await eventService.getApprovedEvents();
+        setEvents(data);
+      } catch (err) {
+        console.error('Error fetching events:', err);
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
+
+  if (loading) return <div className="loader">Loading events…</div>;
+  if (!events.length) return <p className="no-events">No events available.</p>;
 
   return (
-    <div className={`event-list ${isFeatured ? 'featured' : ''}`}>
-      {title && <h2 className="event-list-title">{title}</h2>}
-      <div className="event-grid">
-        {events.map((event) => (
-          <EventCard
-            key={event.id}
-            event={event}
-            onClick={() => handleEventClick(event.id)}
-          />
-        ))}
-      </div>
+    <div className="event-grid">
+      {events.map(evt => (
+        <EventCard key={evt._id} event={evt} />
+      ))}
     </div>
   );
-};
-
-export default EventList; 
+}

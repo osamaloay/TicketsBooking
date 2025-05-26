@@ -1,222 +1,81 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { toast } from 'react-toastify';
 import { eventService } from '../../services/eventService';
 import { bookingService } from '../../services/bookingService';
+import toast from 'react-hot-toast';
 import './TicketPurchase.css';
 
-const TicketPurchase = () => {
+/**
+ * Page for purchasing tickets for a specific event.
+ */
+export default function TicketPurchase() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const [totalPrice, setTotalPrice] = useState(0);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [total, setTotal] = useState(0);
+  const [processing, setProcessing] = useState(false);
 
   useEffect(() => {
-    const fetchEventDetails = async () => {
+    (async () => {
       try {
-        const data = await eventService.getEventById(id);
+        const data = await eventService.getEventDetails(id);
         setEvent(data);
-        setTotalPrice(data.ticketPrice * quantity);
-      } catch (err) {
-        console.error('Error fetching event:', err);
-        setError(err.message || 'Failed to fetch event details');
-        toast.error(err.message || 'Failed to fetch event details');
+        setTotal(data.ticketPricing);
+      } catch {
+        toast.error('Failed to load event');
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchEventDetails();
+    })();
   }, [id]);
 
   useEffect(() => {
-    if (event) {
-      setTotalPrice(event.ticketPrice * quantity);
-    }
+    if (event) setTotal(event.ticketPricing * quantity);
   }, [quantity, event]);
-
-  const handleQuantityChange = (e) => {
-    const newQuantity = parseInt(e.target.value);
-    if (newQuantity > 0 && newQuantity <= event.remainingTickets) {
-      setQuantity(newQuantity);
-    }
-  };
 
   const handlePurchase = async () => {
     if (!user) {
-      toast.info('Please sign in to purchase tickets');
-      navigate('/login', { state: { from: `/events/${id}/purchase` } });
-      return;
+      toast('Please log in first', { icon: '🔒' });
+      return navigate('/login');
     }
-
-    if (isProcessing) return;
-
+    if (processing) return;
     try {
-      setIsProcessing(true);
-      console.log('Starting purchase process...');
-      
-      // First check if tickets are still available
-      const currentEvent = await eventService.getEventById(id);
-      console.log('Current event data:', currentEvent);
-      
-      if (!currentEvent) {
-        throw new Error('Event not found');
-      }
-
-      if (currentEvent.remainingTickets < quantity) {
-        toast.error('Sorry, not enough tickets available');
-        return;
-      }
-
-      // Create the booking
-      const bookingData = {
-        eventId: id,
-        quantity: quantity,
-        totalAmount: totalPrice,
-        userId: user._id,
-        eventTitle: event.title,
-        eventDate: event.date,
-        eventLocation: event.location
-      };
-
-      console.log('Sending booking data:', bookingData);
-
-      const response = await bookingService.createBooking(bookingData);
-      console.log('Booking response:', response);
-      
-      toast.success('Tickets purchased successfully!');
-      navigate('/dashboard', { state: { purchaseSuccess: true } });
-    } catch (error) {
-      console.error('Purchase error details:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status
-      });
-      
-      let errorMessage = 'Failed to purchase tickets. ';
-      
-      if (error.response?.data?.message) {
-        errorMessage += error.response.data.message;
-      } else if (error.message) {
-        errorMessage += error.message;
-      } else {
-        errorMessage += 'Please try again.';
-      }
-      
-      toast.error(errorMessage);
+      setProcessing(true);
+      if (event.remainingTickets < quantity) throw new Error('Insufficient tickets');
+      await bookingService.createBooking({ eventId: id, numberOfTickets: quantity });
+      toast.success('Booking successful!');
+      navigate('/my-bookings');
+    } catch (err) {
+      toast.error(err.message);
     } finally {
-      setIsProcessing(false);
+      setProcessing(false);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="ticket-purchase-loading">
-        <div className="loading-spinner"></div>
-        <p>Loading event details...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="ticket-purchase-error">
-        <p>{error}</p>
-        <button onClick={() => navigate(-1)}>Go Back</button>
-      </div>
-    );
-  }
-
-  if (!event) {
-    return (
-      <div className="ticket-purchase-error">
-        <p>Event not found</p>
-        <button onClick={() => navigate(-1)}>Go Back</button>
-      </div>
-    );
-  }
+  if (loading) return <div className="loader">Loading…</div>;
+  if (!event) return <p className="error">Event not found.</p>;
 
   return (
-    <div className="ticket-purchase-container">
-      <div className="ticket-purchase-card">
-        <h1>Purchase Tickets</h1>
-        
-        <div className="event-summary">
-          <h2>{event.title}</h2>
-          <div className="event-details">
-            <p>
-              <i className="fas fa-calendar-alt"></i>
-              {new Date(event.date).toLocaleDateString()}
-            </p>
-            <p>
-              <i className="fas fa-map-marker-alt"></i>
-              {event.location}
-            </p>
-            <p>
-              <i className="fas fa-ticket-alt"></i>
-              Price per ticket: ${event.ticketPrice}
-            </p>
-            <p>
-              <i className="fas fa-info-circle"></i>
-              Available tickets: {event.remainingTickets}
-            </p>
-          </div>
-        </div>
-
-        <div className="purchase-form">
-          <div className="quantity-selector">
-            <label htmlFor="quantity">Number of Tickets:</label>
-            <input
-              type="number"
-              id="quantity"
-              min="1"
-              max={event.remainingTickets}
-              value={quantity}
-              onChange={handleQuantityChange}
-            />
-          </div>
-
-          <div className="price-summary">
-            <div className="price-row">
-              <span>Price per ticket:</span>
-              <span>${event.ticketPrice}</span>
-            </div>
-            <div className="price-row">
-              <span>Quantity:</span>
-              <span>{quantity}</span>
-            </div>
-            <div className="price-row total">
-              <span>Total:</span>
-              <span>${totalPrice.toFixed(2)}</span>
-            </div>
-          </div>
-
-          <div className="purchase-actions">
-            <button 
-              className="purchase-button"
-              onClick={handlePurchase}
-              disabled={isProcessing || event.remainingTickets === 0}
-            >
-              {isProcessing ? 'Processing...' : 'Book'}
-            </button>
-            <button 
-              className="cancel-button"
-              onClick={() => navigate(-1)}
-              disabled={isProcessing}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
+    <div className="purchase-container">
+      <h1>Purchase Tickets for {event.title}</h1>
+      <div className="purchase-details">
+        <label>Quantity:</label>
+        <input
+          type="number"
+          min="1"
+          max={event.remainingTickets}
+          value={quantity}
+          onChange={e => setQuantity(Number(e.target.value))}
+        />
+        <p>Total Price: {total.toLocaleString()} EGP</p>
       </div>
+      <button onClick={handlePurchase} disabled={processing || event.remainingTickets === 0}>
+        {processing ? 'Processing...' : 'Confirm Purchase'}
+      </button>
     </div>
   );
-};
-
-export default TicketPurchase; 
+}
