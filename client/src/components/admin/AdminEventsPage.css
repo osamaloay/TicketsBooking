@@ -1,7 +1,5 @@
 .admin-events-container {
     padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
 }
 
 .admin-events-header {
@@ -9,8 +7,8 @@
 }
 
 .admin-events-header h2 {
+    font-size: 1.8rem;
     color: #333;
-    margin-bottom: 1rem;
 }
 
 .filter-controls {
@@ -44,39 +42,88 @@
 }
 
 .event-card-wrapper {
-    position: relative;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.event-card-wrapper:hover {
+    transform: translateY(-4px);
+}
+
+.event-card {
+    padding: 1.5rem;
+}
+
+.event-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.event-card h3 {
+    margin: 1rem 0;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.event-card p {
+    color: #666;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.event-status {
+    margin-bottom: 1rem;
+    font-weight: 500;
+}
+
+.status-pending {
+    color: #f0ad4e;
+}
+
+.status-approved {
+    color: #5cb85c;
+}
+
+.status-declined {
+    color: #d9534f;
 }
 
 .event-actions {
     display: flex;
     gap: 1rem;
-    margin-top: 1rem;
 }
 
 .approve-btn, .decline-btn {
-    padding: 0.5rem 1rem;
+    flex: 1;
+    padding: 0.75rem;
     border: none;
     border-radius: 4px;
+    font-size: 0.9rem;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background-color 0.2s;
 }
 
 .approve-btn {
-    background-color: #28a745;
-    color: white;
-}
-
-.decline-btn {
-    background-color: #dc3545;
+    background-color: #5cb85c;
     color: white;
 }
 
 .approve-btn:hover {
-    background-color: #218838;
+    background-color: #4cae4c;
+}
+
+.decline-btn {
+    background-color: #d9534f;
+    color: white;
 }
 
 .decline-btn:hover {
-    background-color: #c82333;
+    background-color: #c9302c;
 }
 
 .no-events {

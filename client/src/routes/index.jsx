@@ -27,6 +27,23 @@ import Payment from '../components/payment/Payment'
 import Bookings from '../components/bookings/Bookings'
 import BookingDetails from '../components/bookings/BookingDetails'
 
+// Auth pages
+// import LoginPage from '../pages/auth/LoginPage';
+// import RegisterPage from '../pages/auth/RegisterPage';
+// import ForgotPasswordPage from '../pages/auth/ForgotPasswordPage';
+// import OTPVerificationPage from '../pages/auth/OTPVerificationPage';
+
+// Main pages
+// import HomePage from '../pages/HomePage';
+// import EventsPage from '../pages/EventsPage';
+// import EventDetailsPage from '../pages/EventDetailsPage';
+// import MyBookingsPage from '../pages/MyBookingsPage';
+
+// Admin pages
+import AdminEventsPage from '../components/admin/AdminEventsPage';
+import AdminUsersPage from '../components/admin/AdminUsersPage';
+import AdminSettingsPage from '../components/admin/AdminSettingsPage';
+
 // Protected Route Component with role-based access
 const ProtectedRoute = ({ children, roles = [] }) => {
     const { isAuthenticated, user, ROLES } = useAuth()
@@ -137,6 +154,38 @@ const AppRoutes = () => {
                 <Layout>
                     <ProtectedRoute roles={[ROLES.ORGANIZER]}>
                         <EventAnalytics />
+                    </ProtectedRoute>
+                </Layout>
+            } />
+            
+            {/* User routes */}
+            <Route path="/my-bookings" element={
+                <Layout>
+                    <ProtectedRoute roles={[ROLES.USER]}>
+                        <Bookings />
+                    </ProtectedRoute>
+                </Layout>
+            } />
+
+            {/* Admin routes */}
+            <Route path="/admin/events" element={
+                <Layout>
+                    <ProtectedRoute roles={[ROLES.ADMIN]}>
+                        <AdminEventsPage />
+                    </ProtectedRoute>
+                </Layout>
+            } />
+            <Route path="/admin/users" element={
+                <Layout>
+                    <ProtectedRoute roles={[ROLES.ADMIN]}>
+                        <AdminUsersPage />
+                    </ProtectedRoute>
+                </Layout>
+            } />
+            <Route path="/admin/settings" element={
+                <Layout>
+                    <ProtectedRoute roles={[ROLES.ADMIN]}>
+                        <AdminSettingsPage />
                     </ProtectedRoute>
                 </Layout>
             } />

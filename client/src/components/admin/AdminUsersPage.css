@@ -1,7 +1,5 @@
 .admin-users-container {
     padding: 2rem;
-    max-width: 1200px;
-    margin: 0 auto;
 }
 
 .admin-users-header {
@@ -9,20 +7,17 @@
 }
 
 .admin-users-header h2 {
+    font-size: 1.8rem;
     color: #333;
-    margin-bottom: 1rem;
-}
-
-.users-table-container {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
 }
 
 .users-table {
     width: 100%;
     border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .users-table th,
@@ -38,58 +33,82 @@
     color: #333;
 }
 
-.role-badge {
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
+.users-table tr:last-child td {
+    border-bottom: none;
+}
+
+.users-table tr:hover {
+    background-color: #f8f9fa;
+}
+
+.user-role {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
     font-size: 0.875rem;
     font-weight: 500;
 }
 
-.role-badge.admin {
-    background-color: #dc3545;
-    color: white;
+.role-admin {
+    background-color: #e3f2fd;
+    color: #1976d2;
 }
 
-.role-badge.organizer {
-    background-color: #28a745;
-    color: white;
+.role-organizer {
+    background-color: #e8f5e9;
+    color: #2e7d32;
 }
 
-.role-badge.user {
-    background-color: #6c757d;
-    color: white;
+.role-user {
+    background-color: #f5f5f5;
+    color: #616161;
 }
 
-.actions-cell {
+.user-actions {
     display: flex;
     gap: 0.5rem;
 }
 
-.update-role-btn,
-.delete-btn {
-    padding: 0.5rem 1rem;
+.edit-btn, .delete-btn {
+    padding: 0.5rem;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: background-color 0.2s;
 }
 
-.update-role-btn {
-    background-color: #007bff;
+.edit-btn {
+    background-color: #2196f3;
     color: white;
+}
+
+.edit-btn:hover {
+    background-color: #1976d2;
 }
 
 .delete-btn {
-    background-color: #dc3545;
+    background-color: #f44336;
     color: white;
 }
 
-.update-role-btn:hover {
-    background-color: #0056b3;
+.delete-btn:hover {
+    background-color: #d32f2f;
 }
 
-.delete-btn:hover {
-    background-color: #c82333;
+.user-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-active {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+}
+
+.status-inactive {
+    background-color: #ffebee;
+    color: #c62828;
 }
 
 .admin-users-loading {
