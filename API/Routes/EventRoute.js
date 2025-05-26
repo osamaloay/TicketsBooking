@@ -13,6 +13,8 @@ router.get('/', EventController.getApprovedEvents);
 router.get('/all', authenticate, authorize('System Admin'), EventController.getAllEvents);
 // get details event by id
 router.get('/:id', EventController.getEventById);
+// search 
+router.get('/search',authenticate,authorize('Standard User'),EventController.searchEvents);
 // update an event by organizer or admin 
 router.put('/:id', authenticate, authorize('Organizer', 'System Admin'), upload.single('image'), EventController.updateEvent);
 // delete an event by Organizer or admin 

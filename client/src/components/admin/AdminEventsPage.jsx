@@ -87,7 +87,7 @@ const AdminEventsPage = () => {
                                     </div>
                                     <div className="info-item">
                                         <FaMapMarkerAlt />
-                                        <span>{event.location}</span>
+                                        <span>{event.location.address || 'Location not specified'}</span>
                                     </div>
                                     <div className="info-item">
                                         <FaUsers />

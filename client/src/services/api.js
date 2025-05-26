@@ -188,40 +188,78 @@ export const userService = {
 };
 
 export const bookingService = {
-    // create booking done ✅
     createBooking: async (bookingData) => {
         try {
+            if (!bookingData.event || !bookingData.user || !bookingData.numberOfTickets) {
+                throw new Error('Missing required booking information');
+            }
+
             const response = await api.post('/bookings/', {
                 event: bookingData.event,
                 user: bookingData.user,
                 numberOfTickets: bookingData.numberOfTickets,
                 paymentMethodId: bookingData.paymentMethodId
             });
+
+            if (!response.data) {
+                throw new Error('No data received from server');
+            }
+
             return response.data;
         } catch (error) {
-            return handleError(error);
+            console.error('Booking creation error:', error);
+            if (error.response?.data?.message) {
+                throw new Error(error.response.data.message);
+            }
+            throw new Error('Failed to create booking. Please try again.');
         }
     },
-    // get booking by id done ✅
+
     getBookingById: async (id) => {
         try {
+            if (!id) {
+                throw new Error('Booking ID is required');
+            }
+
             const response = await api.get(`/bookings/${id}`);
+            
+            if (!response.data) {
+                throw new Error('No data received from server');
+            }
+
             return response.data;
         } catch (error) {
-            return handleError(error);
+            console.error('Get booking error:', error);
+            if (error.response?.data?.message) {
+                throw new Error(error.response.data.message);
+            }
+            throw new Error('Failed to fetch booking details. Please try again.');
         }
     },
-    // cancel booking by id done ✅
+
     cancelBooking: async (id) => {
         try {
+            if (!id) {
+                throw new Error('Booking ID is required');
+            }
+
             const response = await api.delete(`/bookings/${id}`);
+            
+            if (!response.data) {
+                throw new Error('No data received from server');
+            }
+
             return response.data;
         } catch (error) {
-            return handleError(error);
+            console.error('Cancel booking error:', error);
+            if (error.response?.data?.message) {
+                throw new Error(error.response.data.message);
+            }
+            throw new Error('Failed to cancel booking. Please try again.');
         }
     }
-  
 };
+
 export const eventService = {
     // create new event by organizer done ✅
     createEvent: async (formData) => {

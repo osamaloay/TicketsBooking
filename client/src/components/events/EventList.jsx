@@ -47,8 +47,12 @@ const EventList = () => {
     return (
         <div className="events-container">
             <div className="events-header">
-                <h1>Upcoming Events</h1>
-                <p>Discover and book tickets for amazing events</p>
+                <h2>
+                    <span className="emoji">🎉</span>
+                    Upcoming Events
+                    <span className="emoji">🎪</span>
+                </h2>
+                <p>Discover and book tickets for the most exciting events in town</p>
             </div>
             
             <div className="events-grid">
@@ -79,7 +83,7 @@ const EventList = () => {
                                     
                                     <div className="event-detail">
                                         <FaMapMarkerAlt className="icon" />
-                                        <span>{event.location}</span>
+                                        <span>{event.location.address || 'Location not specified'}</span>
                                     </div>
                                     
                                     <div className="event-detail">
@@ -105,6 +109,15 @@ const EventList = () => {
                         </div>
                     </Link>
                 ))}
+            </div>
+
+            <div className="discover-events">
+                <h2>
+                    <span className="emoji">🔍</span>
+                    Discover Events
+                    <span className="emoji">✨</span>
+                </h2>
+                <p>Find your next unforgettable experience</p>
             </div>
         </div>
     );

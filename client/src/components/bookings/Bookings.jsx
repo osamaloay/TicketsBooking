@@ -10,7 +10,7 @@ import { FaCalendarAlt, FaMapMarkerAlt, FaTicketAlt, FaDollarSign, FaInfoCircle,
 import '../../styles/Bookings.css';
 import { useNavigate } from 'react-router-dom';
 
-const Bookings = () => {
+function Bookings() {
     const { user } = useAuth();
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -100,7 +100,7 @@ const Bookings = () => {
                                     
                                     <div className="info-item">
                                         <FaMapMarkerAlt className="icon" />
-                                        <span>{booking.event.location}</span>
+                                        <span>{booking.event.location.address || 'Location not specified'}</span>
                                     </div>
                                     
                                     <div className="info-item">
@@ -139,6 +139,6 @@ const Bookings = () => {
             )}
         </div>
     );
-};
+}
 
 export default Bookings;

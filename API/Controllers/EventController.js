@@ -4,10 +4,24 @@ const { cloudinary } = require('../config/cloudinary');
 
 const EventController = {
     // create a new event
-    createEvent: async (req, res) => {
+    createEvent : async (req, res) => {
         try {
+            console.log('Received event data:', req.body);
+            console.log('Received file:', req.file);
+            console.log('User:', req.user);
+    
             const eventData = { ...req.body };
-
+    
+            // Parse location if it's a string
+            if (typeof eventData.location === 'string') {
+                try {
+                    eventData.location = JSON.parse(eventData.location);
+                } catch (error) {
+                    console.error('Error parsing location:', error);
+                    return res.status(400).json({ message: 'Invalid location format' });
+                }
+            }
+    
             // Handle image upload if present
             if (req.file) {
                 eventData.image = {
@@ -15,12 +29,33 @@ const EventController = {
                     public_id: req.file.filename
                 };
             }
-
+    
+            // Set organizer from authenticated user
+            eventData.organizer = req.user._id;
+    
+            console.log('Processed event data:', eventData);
+    
             const event = new eventModel(eventData);
             await event.save();
             res.status(201).json(event);
         } catch (error) {
-            res.status(400).json({ message: error.message });
+            console.error('Error creating event:', error);
+            console.error('Error name:', error.name);
+            console.error('Error message:', error.message);
+            console.error('Error stack:', error.stack);
+            
+            if (error.name === 'ValidationError') {
+                const validationErrors = Object.values(error.errors).map(err => err.message);
+                return res.status(400).json({ 
+                    message: 'Validation Error', 
+                    errors: validationErrors 
+                });
+            }
+            
+            res.status(400).json({ 
+                message: error.message,
+                error: error.toString()
+            });
         }
     },
     getAllEvents: async (req, res) => {
@@ -104,7 +139,51 @@ const EventController = {
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
+    },
+     searchEvents : async (req, res) => {
+        try {
+            const { q } = req.query;
+    
+            if (!q) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: 'Search query is required' 
+                });
+            }
+    
+            // Build search query for approved events only
+            const searchQuery = {
+                $and: [
+                    { status: 'approved' },
+                    {
+                        $or: [
+                            { title: { $regex: q, $options: 'i' } },
+                            { description: { $regex: q, $options: 'i' } },
+                            { location: { $regex: q, $options: 'i' } }
+                        ]
+                    }
+                ]
+            };
+    
+            const events = await Event.find(searchQuery)
+                .populate('organizer', 'name email')
+                .sort({ date: 1 });
+    
+            res.status(200).json({
+                success: true,
+                count: events.length,
+                data: events
+            });
+        } catch (error) {
+            console.error('Search error:', error);
+            res.status(500).json({ 
+                success: false, 
+                message: 'Error searching events',
+                error: error.message 
+            });
+        }
     }
+    
 
 };
 module.exports = EventController;

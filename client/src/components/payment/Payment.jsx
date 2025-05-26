@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { ErrorMessage } from '../shared/ErrorMessage';
 import { Button } from '../shared/Button';
-import '../payment/Payment.css';
+import './Payment.css';
 
 const Payment = () => {
     const { id } = useParams();
@@ -24,8 +24,12 @@ const Payment = () => {
     const [cardComplete, setCardComplete] = useState(false);
 
     useEffect(() => {
+        if (!stripe) {
+            console.error('Stripe not initialized');
+            return;
+        }
         fetchEventById(id);
-    }, [id, fetchEventById]);
+    }, [id, fetchEventById, stripe]);
 
     const handleCardChange = (event) => {
         setCardComplete(event.complete);
@@ -38,6 +42,8 @@ const Payment = () => {
         setError(null);
 
         if (!stripe || !elements) {
+            setError('Stripe not initialized');
+            setLoading(false);
             return;
         }
 
@@ -56,7 +62,7 @@ const Payment = () => {
                 throw new Error(paymentMethodError.message);
             }
 
-            // Create booking using your BookingContext
+            // Create booking
             await createBooking({
                 event: id,
                 user: user._id,
@@ -67,6 +73,7 @@ const Payment = () => {
             toast.success('Booking confirmed! Check your email for tickets.');
             navigate('/bookings');
         } catch (err) {
+            console.error('Payment error:', err);
             setError(err.message);
             toast.error(err.message);
         } finally {
@@ -93,7 +100,7 @@ const Payment = () => {
                     </div>
                     <div className="summary-item">
                         <span>Location:</span>
-                        <span>{currentEvent.location}</span>
+                        <span>{currentEvent.location.address || 'Location not specified'}</span>
                     </div>
                     <div className="summary-item">
                         <span>Price per ticket:</span>

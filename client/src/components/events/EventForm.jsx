@@ -4,6 +4,7 @@ import { eventService, userService } from '../../services/api';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
 import './EventForm.css';
+import MapPicker from '../shared/MapPicker';
 
 const EventForm = () => {
     const navigate = useNavigate();
@@ -21,6 +22,13 @@ const EventForm = () => {
         totalTickets: '',
         ticketPricing: '',
         image: null
+    });
+    const [location, setLocation] = useState({
+        address: '',
+        coordinates: {
+            lat: null,
+            lng: null
+        }
     });
 
     useEffect(() => {
@@ -67,17 +75,36 @@ const EventForm = () => {
                         return;
                     }
 
+                    // Ensure all form fields have default values
                     setFormData({
-                        title: event.title,
-                        description: event.description,
-                        date: new Date(event.date).toISOString().split('T')[0],
-                        time: event.time,
-                        location: event.location,
-                        category: event.category,
-                        totalTickets: event.totalTickets,
-                        ticketPricing: event.ticketPricing,
-                        image: event.image
+                        title: event.title || '',
+                        description: event.description || '',
+                        date: event.date ? new Date(event.date).toISOString().split('T')[0] : '',
+                        time: event.time || '',
+                        category: event.category || '',
+                        totalTickets: event.totalTickets || '',
+                        ticketPricing: event.ticketPricing || '',
+                        image: event.image || null
                     });
+
+                    // Set location data with proper null checks
+                    if (event.location && event.location.coordinates) {
+                        setLocation({
+                            address: event.location.address || '',
+                            coordinates: {
+                                lat: event.location.coordinates.lat || null,
+                                lng: event.location.coordinates.lng || null
+                            }
+                        });
+                    } else {
+                        setLocation({
+                            address: '',
+                            coordinates: {
+                                lat: null,
+                                lng: null
+                            }
+                        });
+                    }
                 }
             } catch (error) {
                 console.error('Error checking organizer status:', error);
@@ -102,29 +129,64 @@ const EventForm = () => {
         }));
     };
 
+    const handleLocationSelect = (coordinates) => {
+        setLocation(prev => ({
+            ...prev,
+            coordinates
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setLoading(true);
+        
+        if (!location.coordinates.lat || !location.coordinates.lng) {
+            toast.error('Please select a location on the map');
+            return;
+        }
+
+        // Log the form data before creating FormData
+        console.log('Form Data:', formData);
+        console.log('Location:', location);
+
+        const eventFormData = new FormData();
+        eventFormData.append('title', formData.title);
+        eventFormData.append('description', formData.description);
+        eventFormData.append('date', formData.date);
+        eventFormData.append('location', JSON.stringify({
+            address: location.address,
+            coordinates: {
+                lat: location.coordinates.lat,
+                lng: location.coordinates.lng
+            }
+        }));
+        eventFormData.append('category', formData.category);
+        eventFormData.append('ticketPricing', formData.ticketPricing);
+        eventFormData.append('totalTickets', formData.totalTickets);
+        eventFormData.append('remainingTickets', formData.totalTickets); // Set remaining tickets equal to total tickets initially
+        eventFormData.append('organizer', user._id); // Add the organizer ID
+        if (formData.image) {
+            eventFormData.append('image', formData.image);
+        }
+
+        // Log the FormData contents
+        for (let pair of eventFormData.entries()) {
+            console.log(pair[0] + ': ' + pair[1]);
+        }
 
         try {
-            const formDataToSend = new FormData();
-            Object.keys(formData).forEach(key => {
-                if (formData[key] !== null) {
-                    formDataToSend.append(key, formData[key]);
-                }
-            });
-
+            setLoading(true);
             if (id) {
-                await eventService.updateEvent(id, formDataToSend);
+                await eventService.updateEvent(id, eventFormData);
                 toast.success('Event updated successfully');
             } else {
-                await eventService.createEvent(formDataToSend);
+                const response = await eventService.createEvent(eventFormData);
+                console.log('Server Response:', response);
                 toast.success('Event created successfully');
             }
             navigate('/my-events');
         } catch (error) {
-            console.error('Error submitting event:', error);
-            toast.error(error.response?.data?.message || 'Error submitting event');
+            console.error('Error details:', error.response?.data);
+            toast.error(error.response?.data?.message || 'Error saving event');
         } finally {
             setLoading(false);
         }
@@ -188,14 +250,21 @@ const EventForm = () => {
                 </div>
 
                 <div className="form-group">
-                    <label htmlFor="location">Location</label>
-                    <input
-                        type="text"
-                        id="location"
-                        name="location"
-                        value={formData.location}
-                        onChange={handleChange}
-                        required
+                    <label>Location</label>
+                    <div className="location-display">
+                        {location.address ? (
+                            <>
+                                <p><strong>Address:</strong> {location.address}</p>
+                                <p><strong>Coordinates:</strong> {location.coordinates.lat.toFixed(6)}, {location.coordinates.lng.toFixed(6)}</p>
+                            </>
+                        ) : (
+                            <p>No location selected</p>
+                        )}
+                    </div>
+                    <MapPicker 
+                        onLocationSelect={handleLocationSelect}
+                        initialLocation={id && location.coordinates.lat && location.coordinates.lng ? 
+                            [location.coordinates.lat, location.coordinates.lng] : null}
                     />
                 </div>
 

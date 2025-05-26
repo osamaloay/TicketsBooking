@@ -18,7 +18,20 @@ import './components/auth/AuthForms.css'        // Auth form styles
 // Import routes
 import AppRoutes from './routes'
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY)
+// Initialize Stripe with proper error handling
+const stripePromise = (async () => {
+    try {
+        const publicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY;
+        if (!publicKey) {
+            console.error('Stripe public key is not defined in environment variables');
+            return null;
+        }
+        return loadStripe(publicKey);
+    } catch (error) {
+        console.error('Error initializing Stripe:', error);
+        return null;
+    }
+})();
 
 const App = () => {
     return (
