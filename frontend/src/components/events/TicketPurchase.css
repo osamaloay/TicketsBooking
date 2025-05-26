@@ -1,0 +1,184 @@
+.ticket-purchase-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+.ticket-purchase-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+.ticket-purchase-card h1 {
+  color: #333;
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.event-summary {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.event-summary h2 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.event-details {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.event-details p {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #666;
+}
+
+.event-details i {
+  color: #4CAF50;
+  width: 20px;
+}
+
+.purchase-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.quantity-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quantity-selector label {
+  color: #333;
+  font-weight: 500;
+}
+
+.quantity-selector input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  width: 100px;
+}
+
+.price-summary {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  color: #666;
+}
+
+.price-row.total {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ddd;
+  font-weight: 600;
+  color: #333;
+  font-size: 1.2rem;
+}
+
+.purchase-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.purchase-button,
+.cancel-button {
+  flex: 1;
+  padding: 1rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.purchase-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.purchase-button:hover:not(:disabled) {
+  background-color: #45a049;
+  transform: translateY(-2px);
+}
+
+.purchase-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.cancel-button {
+  background-color: #f8f9fa;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.cancel-button:hover:not(:disabled) {
+  background-color: #e9ecef;
+}
+
+.ticket-purchase-loading,
+.ticket-purchase-error {
+  text-align: center;
+  padding: 3rem;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid #f3f3f3;
+  border-top: 5px solid #4CAF50;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.ticket-purchase-error button {
+  margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .ticket-purchase-card {
+    padding: 1.5rem;
+  }
+
+  .purchase-actions {
+    flex-direction: column;
+  }
+
+  .purchase-button,
+  .cancel-button {
+    width: 100%;
+  }
+} 

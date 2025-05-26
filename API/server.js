@@ -1,4 +1,3 @@
-
 // imports and dependencies
 const express = require('express'); 
 const mongoose = require('mongoose');
@@ -12,6 +11,7 @@ const BookingROUTE= require('./Routes/BookingRoute');
 const UserROUTE = require('./Routes/UserRoute'); 
 const AuthROUTE = require('./Routes/AuthenticateRoute'); 
 const verifyOTPROUTE = require('./Routes/OTPROUTES');
+const fs = require('fs');
 
 
 
@@ -26,16 +26,27 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use(cors({
-    origin: process.env.ORIGIN,
+    origin: process.env.ORIGIN || 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
 }));
 
 app.use(cookieParser());
+app.use('/tickets', express.static(path.join(__dirname, 'tickets')));
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.join(__dirname, 'uploads/events');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 
 // List of routes 
-app.use('/api/v1', AuthROUTE);
+app.use('/api/v1/auth', AuthROUTE);
 
 app.use('/api/v1/users', UserROUTE);
 app.use('/api/v1/events', EventROUTE);

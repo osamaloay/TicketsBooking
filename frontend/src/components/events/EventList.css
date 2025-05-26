@@ -1,0 +1,32 @@
+.event-list {
+  margin: 2rem 0;
+}
+
+.event-list-title {
+  color: #333;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.event-list.featured .event-list-title {
+  color: #2ecc71;
+}
+
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+  padding: 1rem;
+}
+
+@media (max-width: 768px) {
+  .event-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .event-list-title {
+    font-size: 1.5rem;
+  }
+} 

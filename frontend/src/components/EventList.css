@@ -1,0 +1,20 @@
+/* src/components/events/EventList.css */
+
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.event-grid p,
+.event-grid h3 {
+  margin: 0.25rem 0;
+}
+
+/* Optional: center “no events” or loading text */
+.event-grid + p {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #666;
+}

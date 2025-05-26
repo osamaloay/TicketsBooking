@@ -24,7 +24,7 @@ Content-Type: application/json
 
 {
     "email" : "osamaloayyy@gmail.com", 
-    "password" : "12345678"
+    "password" : "chingchong"
 }
 
 ### 
@@ -33,7 +33,7 @@ Content-Type: application/json
 
 {
     "email" : "osamaloayyy@gmail.com" , 
-    "otp" : "680413"
+    "otp" : "868515"
 }
 
 ### 
@@ -50,7 +50,211 @@ Content-Type: application/json
 {
     "email": "osamaloayyy@gmail.com", 
     "newPassword" : "chingchong",
-    "otp" : "445522"
+    "otp" : "124609"
 }
 
+
+### 
+GET http://localhost:5000/api/v1/users/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY0YTVmNjBkZTkwZTk2N2M1ODE1ZiIsImlhdCI6MTc0NTI0Njc1OCwiZXhwIjoxNzQ1MjUwMzU4fQ.bYRIutKfxxalGr0KUK7figok5j4952UGcv8YWweb6yo
+
+
+{
+      "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY0YTVmNjBkZTkwZTk2N2M1ODE1ZiIsImlhdCI6MTc0NTI0Njc1OCwiZXhwIjoxNzQ1MjUwMzU4fQ.bYRIutKfxxalGr0KUK7figok5j4952UGcv8YWweb6yo",
+  "user": {
+    "id": "68064a5f60de90e967c5815f",
+    "name": "osama loay",
+    "email": "osamaloayyy@gmail.com",
+    "role": "System Admin"
+  }
+}
+
+### 
+GET http://localhost:5000/api/v1/users/68064a5f60de90e967c5815f
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY0YTVmNjBkZTkwZTk2N2M1ODE1ZiIsImlhdCI6MTc0NTI0Njc1OCwiZXhwIjoxNzQ1MjUwMzU4fQ.bYRIutKfxxalGr0KUK7figok5j4952UGcv8YWweb6yo
+
+{
+
+    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY0YTVmNjBkZTkwZTk2N2M1ODE1ZiIsImlhdCI6MTc0NTI0Njc1OCwiZXhwIjoxNzQ1MjUwMzU4fQ.bYRIutKfxxalGr0KUK7figok5j4952UGcv8YWweb6yo",
+    "user": { 
+    "id": "68064a5f60de90e967c5815f",
+    "name": "osama loay",
+    "email": "osamaloayyy@gmail.com",
+    "role": "System Admin"
+    }
+}
+# ### 
+# PUT http://localhost:5000/api/v1/users/68064a5f60de90e967c5815f
+# Content-Type: application/json
+# Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY0YTVmNjBkZTkwZTk2N2M1ODE1ZiIsImlhdCI6MTc0NTI0Njc1OCwiZXhwIjoxNzQ1MjUwMzU4fQ.bYRIutKfxxalGr0KUK7figok5j4952UGcv8YWweb6yo
+
+# {
+    
+# }
+
+### 
+POST http://localhost:5000/api/v1/register
+Content-Type: application/json 
+
+{
+    "name" : "osama loay", 
+    "email": "mansouosama@gmail.com", 
+    "password": "12345678",
+    "role": "Organizer"
+
+}
+
+###
+POST http://localhost:5000/api/v1/otp/verify/register
+Content-Type: application/json 
+
+{
+    "email": "mansouosama@gmail.com",
+    "otp" : "835103"
+}
+
+### 
+POST http://localhost:5000/api/v1/login
+Content-Type: application/json 
+
+{
+    "email":"mansouosama@gmail.com", 
+    "password":"12345678"
+}
+
+### 
+POST http://localhost:5000/api/v1/otp/verify/login
+Content-Type:  application/json 
+
+{
+    "email":"mansouosama@gmail.com", 
+    "otp": "892467"
+
+}
+
+###
+POST http://localhost:5000/api/v1/events
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2N2RmOGUzNzY5M2ZlNjViN2U0NiIsImlhdCI6MTc0NTI1MDgxMywiZXhwIjoxNzQ1MjU0NDEzfQ._opYr2QvPMS86efaJiUPRAIqxH8P5D2ESEephHgJnxw
+
+
+ {
+  "title": "Cairo Tech Summit 2025",
+  "description": "Join industry leaders to explore the future of technology, cybersecurity, and AI innovations.",
+  "date": "2025-06-15T18:00:00.000Z",
+  "location": "Cairo International Convention Center, Egypt",
+  "category": "Technology",
+  "image": "https://example.com/images/techsummit2025.jpg",
+  "ticketPricing": 250,
+  "totalTickets": 500,
+  "remainingTickets": 500,
+  "organizer": "680667df8e37693fe65b7e46",  
+  "status": "approved"
+}
+
+
+
+### 
+POST  http://localhost:5000/api/v1/events
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2N2RmOGUzNzY5M2ZlNjViN2U0NiIsImlhdCI6MTc0NTI1MDgxMywiZXhwIjoxNzQ1MjU0NDEzfQ._opYr2QvPMS86efaJiUPRAIqxH8P5D2ESEephHgJnxw
+
+{
+  "title": "Alexandria Startup Expo 2025",
+  "description": "Discover Egypt’s most promising startups, meet investors, and attend insightful keynote sessions by entrepreneurial leaders.",
+  "date": "2025-07-10T10:30:00.000Z",
+  "location": "Bibliotheca Alexandrina Conference Hall, Alexandria, Egypt",
+  "category": "Business",
+  "image": "https://example.com/images/startupexpo2025.jpg",
+  "ticketPricing": 150,
+  "totalTickets": 300,
+  "remainingTickets": 300,
+  "organizer": "680667df8e37693fe65b7e46",
+  "status": "approved"
+}
+
+
+### 
+GET http://localhost:5000/api/v1/events
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2N2RmOGUzNzY5M2ZlNjViN2U0NiIsImlhdCI6MTc0NTI1MDgxMywiZXhwIjoxNzQ1MjU0NDEzfQ._opYr2QvPMS86efaJiUPRAIqxH8P5D2ESEephHgJnxw
+
+{
+"id":"68066a5f9d39f187d8cbdc0e"
+}
+
+
+### 
+POST http://localhost:5000/api/v1/register
+Content-Type:  application/json 
+
+{
+    "name" : "karim loay", 
+    "email": "omansour570@gmail.com", 
+    "password": "12345678",
+    "role": "Standard User"
+
+}
+
+###
+POST http://localhost:5000/api/v1/otp/verify/register
+Content-Type: application/json
+
+{
+    "email":"omansour570@gmail.com" ,
+    "otp" : "482064"
+}
+
+### 
+POST http://localhost:5000/api/v1/login
+Content-Type:  application/json
+
+{
+    "email": "omansour570@gmail.com", 
+    "password": "12345678"
+
+}
+###
+POST http://localhost:5000/api/v1/otp/verify/login
+Content-Type: application/json
+
+{
+    "email": "omansour570@gmail.com", 
+    "otp" : "383645"
+}
+
+### 
+POST http://localhost:5000/api/v1/bookings
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2YmM0NmRiNTM1MzVmYzE2YTI3NyIsImlhdCI6MTc0NTI1MzQxOCwiZXhwIjoxNzQ1MjU3MDE4fQ.4sGHOhONzZ5tivY8Qzd6_5ohtq9KfgKSzZj0LA36KuY
+
+{
+    "user": "68066bc46db53535fc16a277",
+    "event": "68066a5f9d39f187d8cbdc0e",
+    "numberOfTickets": "2"
+}
+### Book Ticket Request
+POST http://localhost:5000/api/v1/bookings
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2YmM0NmRiNTM1MzVmYzE2YTI3NyIsImlhdCI6MTc0NTI1ODI4OCwiZXhwIjoxNzQ1MjYxODg4fQ.BMNYKFmp7j9rve_n1-RI4vDI98CiIyeYwIWj4ywJvL4
+
+{
+  "event": "680669459d39f187d8cbdc04",
+  "user": "68066bc46db53535fc16a277",
+  "numberOfTickets": "2",
+  "paymentMethodId": "pm_card_visa"
+}
+
+
+
+###
+GET http://localhost:5000/api/v1/events
+Content-Type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY4MDY2YmM0NmRiNTM1MzVmYzE2YTI3NyIsImlhdCI6MTc0NTI1ODI4OCwiZXhwIjoxNzQ1MjYxODg4fQ.BMNYKFmp7j9rve_n1-RI4vDI98CiIyeYwIWj4ywJvL4
+
+{
+
+}
 
