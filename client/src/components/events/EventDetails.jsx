@@ -28,8 +28,11 @@ const EventDetails = () => {
                 try {
                     const userData = await userService.getCurrentUser();
                     console.log('User data:', userData);
+                    console.log('Event organizer ID:', eventData.organizer._id);
+                    console.log('Current user ID:', userData._id);
                     setIsOrganizer(userData.role === ROLES.ORGANIZER);
                     setIsEventOrganizer(eventData.organizer._id === userData._id);
+                    console.log('Is event organizer:', eventData.organizer._id === userData._id);
                 } catch (userError) {
                     console.log('User not authenticated or error fetching user data:', userError);
                     setIsOrganizer(false);

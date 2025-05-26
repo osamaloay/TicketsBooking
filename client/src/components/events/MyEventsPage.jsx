@@ -30,7 +30,7 @@ const MyEventsPage = () => {
     }, []);
 
     const handleEdit = (event) => {
-        navigate(`/my-events/edit/${event._id}`);
+        navigate(`/my-events/${event._id}/edit`);
     };
 
     const handleDelete = async (eventId, e) => {
@@ -84,7 +84,6 @@ const MyEventsPage = () => {
                     <div 
                         key={event._id} 
                         className="event-card"
-                        onClick={() => handleEdit(event)}
                     >
                         <div className="event-image">
                             {event.image ? (
@@ -111,10 +110,7 @@ const MyEventsPage = () => {
                             <div className="event-actions">
                                 <button
                                     className="edit-button"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleEdit(event);
-                                    }}
+                                    onClick={() => handleEdit(event)}
                                 >
                                     <FaEdit /> Edit
                                 </button>

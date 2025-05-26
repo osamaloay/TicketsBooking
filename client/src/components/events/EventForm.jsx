@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { eventService, userService } from '../../services/api';
 import { toast } from 'react-toastify';
+import { useAuth } from '../../context/AuthContext';
 import './EventForm.css';
 
 const EventForm = () => {
     const navigate = useNavigate();
     const { id } = useParams();
+    const { ROLES, user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [isOrganizer, setIsOrganizer] = useState(false);
     const [formData, setFormData] = useState({
@@ -24,11 +26,21 @@ const EventForm = () => {
     useEffect(() => {
         const checkOrganizerStatus = async () => {
             try {
-                const user = await userService.getCurrentUser();
-                setIsOrganizer(user.role === 'organizer');
+                console.log('Auth Context User:', user);
+                console.log('Auth Context ROLES:', ROLES);
+
+                // Get current user profile
+                const currentUser = await userService.getUserProfile();
+                console.log('API Current User:', currentUser);
+                console.log('User Role:', currentUser.role);
+                console.log('Expected Role:', ROLES.ORGANIZER);
+                console.log('Role Match:', currentUser.role === ROLES.ORGANIZER);
+
+                setIsOrganizer(currentUser.role === ROLES.ORGANIZER);
                 
                 // If not organizer, redirect to home
-                if (user.role !== 'organizer') {
+                if (currentUser.role !== ROLES.ORGANIZER) {
+                    console.log('Role mismatch - redirecting to home');
                     toast.error('Only organizers can create or edit events');
                     navigate('/');
                     return;
@@ -36,13 +48,25 @@ const EventForm = () => {
 
                 // If editing, fetch event data
                 if (id) {
+                    console.log('Fetching event with ID:', id);
                     const event = await eventService.getEventById(id);
-                    // Verify if the current user is the organizer of this event
-                    if (event.organizer._id !== user._id) {
+                    console.log('Event data:', event);
+
+                    // Get all events for the current organizer
+                    const organizerEvents = await userService.getOrganizerEvents();
+                    console.log('Organizer Events:', organizerEvents);
+
+                    // Check if the event exists in the organizer's events
+                    const isEventOrganizer = organizerEvents.some(evt => evt._id === id);
+                    console.log('Is Event Organizer:', isEventOrganizer);
+
+                    if (!isEventOrganizer) {
+                        console.log('Not the event organizer - redirecting to my-events');
                         toast.error('You can only edit your own events');
                         navigate('/my-events');
                         return;
                     }
+
                     setFormData({
                         title: event.title,
                         description: event.description,
@@ -57,13 +81,18 @@ const EventForm = () => {
                 }
             } catch (error) {
                 console.error('Error checking organizer status:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    response: error.response?.data,
+                    status: error.response?.status
+                });
                 toast.error('Error verifying organizer status');
                 navigate('/');
             }
         };
 
         checkOrganizerStatus();
-    }, [id, navigate]);
+    }, [id, navigate, ROLES, user]);
 
     const handleChange = (e) => {
         const { name, value, files } = e.target;

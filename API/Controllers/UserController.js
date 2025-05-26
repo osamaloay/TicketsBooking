@@ -157,6 +157,7 @@ const userController = {
               return {
                 eventId: event._id,
                 eventTitle: event.title,
+                category: event.category,
                 totalBookings: relatedBookings.length,
                 totalTicketsSold,
                 totalRevenue,
