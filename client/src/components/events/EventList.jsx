@@ -61,7 +61,6 @@ const EventList = () => {
                                     alt={event.title}
                                     className="event-image"
                                 />
-                                <div className="event-category">{event.category}</div>
                             </div>
                             
                             <div className="event-info">
@@ -90,7 +89,9 @@ const EventList = () => {
                                     
                                     <div className="event-detail">
                                         <FaUsers className="icon" />
-                                        <span>{event.remainingTickets} tickets left</span>
+                                        <span className={event.remainingTickets > 0 ? 'available-label' : 'sold-out-label'}>
+                                            {event.remainingTickets} tickets left
+                                        </span>
                                     </div>
                                 </div>
                                 

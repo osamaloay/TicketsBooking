@@ -64,19 +64,6 @@
     transform: scale(1.1);
 }
 
-.event-category {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: var(--neon-green);
-    color: var(--darker-bg);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    text-transform: uppercase;
-}
-
 .event-info {
     padding: 1.5rem;
 }
@@ -121,8 +108,21 @@
     font-weight: 600;
     padding: 0.4rem 1rem;
     border-radius: 20px;
-    background: var(--neon-green);
-    color: var(--darker-bg);
+    background: linear-gradient(45deg, #ff6b00, #9d00ff);
+    color: white;
+    text-shadow: 0 0 10px rgba(157, 0, 255, 0.5);
+    box-shadow: 0 0 15px rgba(157, 0, 255, 0.3);
+    animation: statusGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes statusGlow {
+    from {
+        box-shadow: 0 0 15px rgba(157, 0, 255, 0.3);
+    }
+    to {
+        box-shadow: 0 0 20px rgba(157, 0, 255, 0.5),
+                    0 0 30px rgba(255, 107, 0, 0.4);
+    }
 }
 
 .view-details-btn {
@@ -131,6 +131,7 @@
     color: var(--neon-green);
     padding: 0.5rem 1rem;
     border-radius: 20px;
+    font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -155,6 +156,32 @@
 .no-events p {
     color: var(--text-light);
     font-size: 1.1rem;
+}
+
+.available-label {
+    color: #9d00ff;
+    text-shadow: 0 0 10px rgba(157, 0, 255, 0.5);
+    font-weight: 600;
+    background: linear-gradient(45deg, #ff6b00, #9d00ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+.sold-out-label {
+    color: #ff0000;
+    text-shadow: 0 0 10px rgba(255, 0, 0, 0.5);
+    font-weight: 600;
+}
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 10px rgba(157, 0, 255, 0.5);
+    }
+    to {
+        text-shadow: 0 0 20px rgba(157, 0, 255, 0.8),
+                     0 0 30px rgba(255, 107, 0, 0.6);
+    }
 }
 
 /* Responsive Design */

@@ -43,6 +43,7 @@ import BookingDetails from '../components/bookings/BookingDetails'
 import AdminEventsPage from '../components/admin/AdminEventsPage';
 import AdminUsersPage from '../components/admin/AdminUsersPage';
 import AdminSettingsPage from '../components/admin/AdminSettingsPage';
+import AdminDashboard from '../components/admin/AdminDashboard';
 
 // Protected Route Component with role-based access
 const ProtectedRoute = ({ children, roles = [] }) => {
@@ -64,19 +65,37 @@ const ProtectedRoute = ({ children, roles = [] }) => {
 }
 
 const AppRoutes = () => {
-    const { isAuthenticated, ROLES } = useAuth()
+    const { isAuthenticated, user, ROLES } = useAuth();
+
+    // Determine the home page based on user role
+    const getHomePage = () => {
+        if (!isAuthenticated) return <EventList />;
+        
+        switch (user.role) {
+            case ROLES.ORGANIZER:
+                return <MyEventsPage />;
+            case ROLES.ADMIN:
+                return <AdminDashboard />;
+            default:
+                return <EventList />;
+        }
+    };
 
     return (
         <Routes>
             {/* Public routes with layout */}
             <Route path="/" element={
                 <Layout>
-                    <EventList />
+                    {getHomePage()}
                 </Layout>
             } />
+            
+            {/* Event routes */}
             <Route path="/events" element={
                 <Layout>
-                    <EventList />
+                    <ProtectedRoute roles={[ROLES.USER]}>
+                        <EventList />
+                    </ProtectedRoute>
                 </Layout>
             } />
             <Route path="/events/:id" element={
@@ -99,6 +118,68 @@ const AppRoutes = () => {
                     </ProtectedRoute>
                 </Layout>
             } />
+            
+            {/* Organizer routes */}
+            <Route path="/my-events" element={
+                <Layout>
+                    <ProtectedRoute roles={[ROLES.ORGANIZER]}>
+                        <MyEventsPage />
+                    </ProtectedRoute>
+                </Layout>
+            } />
+            <Route path="/my-events/new" element={
+                <Layout>
+                    <ProtectedRoute roles={[ROLES.ORGANIZER]}>
+                        <EventForm />
+                    </ProtectedRoute>
+                </Layout>
+            } />
+            <Route path="/my-events/overview" element={
+                <Layout>
+                    <ProtectedRoute roles={[ROLES.ORGANIZER]}>
+                        <EventAnalytics />
+                    </ProtectedRoute>
+                </Layout>
+            } />
+            <Route path="/my-events/:id/edit" element={
+                <Layout>
+                    <ProtectedRoute roles={[ROLES.ORGANIZER]}>
+                        <EventForm />
+                    </ProtectedRoute>
+                </Layout>
+            } />
+            
+            {/* Admin routes */}
+            <Route path="/admin/dashboard" element={
+                <Layout>
+                    <ProtectedRoute roles={[ROLES.ADMIN]}>
+                        <AdminDashboard />
+                    </ProtectedRoute>
+                </Layout>
+            } />
+            <Route path="/admin/events" element={
+                <Layout>
+                    <ProtectedRoute roles={[ROLES.ADMIN]}>
+                        <AdminEventsPage />
+                    </ProtectedRoute>
+                </Layout>
+            } />
+            <Route path="/admin/users" element={
+                <Layout>
+                    <ProtectedRoute roles={[ROLES.ADMIN]}>
+                        <AdminUsersPage />
+                    </ProtectedRoute>
+                </Layout>
+            } />
+            <Route path="/admin/settings" element={
+                <Layout>
+                    <ProtectedRoute roles={[ROLES.ADMIN]}>
+                        <AdminSettingsPage />
+                    </ProtectedRoute>
+                </Layout>
+            } />
+            
+            {/* Other protected routes */}
             <Route path="/payment/:id" element={
                 <Layout>
                     <ProtectedRoute>
@@ -127,73 +208,11 @@ const AppRoutes = () => {
                     </ProtectedRoute>
                 </Layout>
             } />
-
-            {/* Organizer routes */}
-            <Route path="/my-events" element={
-                <Layout>
-                    <ProtectedRoute roles={[ROLES.ORGANIZER]}>
-                        <MyEventsPage />
-                    </ProtectedRoute>
-                </Layout>
-            } />
-            <Route path="/my-events/new" element={
-                <Layout>
-                    <ProtectedRoute roles={[ROLES.ORGANIZER]}>
-                        <EventForm />
-                    </ProtectedRoute>
-                </Layout>
-            } />
-            <Route path="/my-events/:id/edit" element={
-                <Layout>
-                    <ProtectedRoute roles={[ROLES.ORGANIZER]}>
-                        <EventForm />
-                    </ProtectedRoute>
-                </Layout>
-            } />
-            <Route path="/my-events/analytics" element={
-                <Layout>
-                    <ProtectedRoute roles={[ROLES.ORGANIZER]}>
-                        <EventAnalytics />
-                    </ProtectedRoute>
-                </Layout>
-            } />
-            
-            {/* User routes */}
-            <Route path="/my-bookings" element={
-                <Layout>
-                    <ProtectedRoute roles={[ROLES.USER]}>
-                        <Bookings />
-                    </ProtectedRoute>
-                </Layout>
-            } />
-
-            {/* Admin routes */}
-            <Route path="/admin/events" element={
-                <Layout>
-                    <ProtectedRoute roles={[ROLES.ADMIN]}>
-                        <AdminEventsPage />
-                    </ProtectedRoute>
-                </Layout>
-            } />
-            <Route path="/admin/users" element={
-                <Layout>
-                    <ProtectedRoute roles={[ROLES.ADMIN]}>
-                        <AdminUsersPage />
-                    </ProtectedRoute>
-                </Layout>
-            } />
-            <Route path="/admin/settings" element={
-                <Layout>
-                    <ProtectedRoute roles={[ROLES.ADMIN]}>
-                        <AdminSettingsPage />
-                    </ProtectedRoute>
-                </Layout>
-            } />
             
             {/* 404 Route */}
             <Route path="*" element={<NotFound />} />
         </Routes>
-    )
-}
+    );
+};
 
-export default AppRoutes
+export default AppRoutes;

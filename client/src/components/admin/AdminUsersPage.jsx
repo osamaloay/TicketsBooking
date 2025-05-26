@@ -72,8 +72,7 @@ const AdminUsersPage = () => {
                 <table>
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Email</th>
+                            <th>User</th>
                             <th>Role</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -82,8 +81,23 @@ const AdminUsersPage = () => {
                     <tbody>
                         {users.map(user => (
                             <tr key={user._id}>
-                                <td>{user.name}</td>
-                                <td>{user.email}</td>
+                                <td>
+                                    <div className="user-info">
+                                        <div className="user-avatar">
+                                            {user.profilePicture ? (
+                                                <img src={user.profilePicture} alt={user.name} />
+                                            ) : (
+                                                <div className="avatar-placeholder">
+                                                    {user.name.charAt(0).toUpperCase()}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="user-details">
+                                            <span className="user-name">{user.name}</span>
+                                            <span className="user-email">{user.email}</span>
+                                        </div>
+                                    </div>
+                                </td>
                                 <td>
                                     <div className="role-badge">
                                         {getRoleIcon(user.role)}

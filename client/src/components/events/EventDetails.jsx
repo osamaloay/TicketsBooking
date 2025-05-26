@@ -1,9 +1,9 @@
 // client/src/components/events/EventDetails.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { eventService, userService } from '../../services/api';
+import { eventService } from '../../services/api';
 import { toast } from 'react-toastify';
-import { FaCalendar, FaMapMarkerAlt, FaTicketAlt, FaUser, FaEdit, FaClock, FaInfoCircle } from 'react-icons/fa';
+import { FaCalendar, FaMapMarkerAlt, FaTicketAlt, FaUser, FaEdit, FaClock, FaInfoCircle, FaUsers, FaTag, FaShieldAlt } from 'react-icons/fa';
 import { useAuth } from '../../context/AuthContext';
 import './EventDetails.css';
 
@@ -20,30 +20,16 @@ const EventDetails = () => {
     useEffect(() => {
         const fetchEventAndUser = async () => {
             try {
-                console.log('Fetching event with ID:', id);
                 const eventData = await eventService.getEventById(id);
-                console.log('Event data:', eventData);
+                console.log('Event Data:', eventData);
                 setEvent(eventData);
 
-                try {
-                    const userData = await userService.getCurrentUser();
-                    console.log('User data:', userData);
-                    console.log('Event organizer ID:', eventData.organizer._id);
-                    console.log('Current user ID:', userData._id);
-                    setIsOrganizer(userData.role === ROLES.ORGANIZER);
-                    setIsEventOrganizer(eventData.organizer._id === userData._id);
-                    console.log('Is event organizer:', eventData.organizer._id === userData._id);
-                } catch (userError) {
-                    console.log('User not authenticated or error fetching user data:', userError);
-                    setIsOrganizer(false);
-                    setIsEventOrganizer(false);
+                if (isAuthenticated && user) {
+                    setIsOrganizer(user.role === ROLES.ORGANIZER);
+                    setIsEventOrganizer(eventData.organizer._id === user._id);
                 }
             } catch (error) {
-                console.error('Error details:', {
-                    message: error.message,
-                    response: error.response?.data,
-                    status: error.response?.status
-                });
+                console.error('Error fetching event:', error);
                 toast.error('Failed to load event details');
                 navigate('/');
             } finally {
@@ -52,7 +38,7 @@ const EventDetails = () => {
         };
 
         fetchEventAndUser();
-    }, [id, navigate, ROLES]);
+    }, [id, navigate, ROLES, isAuthenticated, user]);
 
     const handleTicketQuantityChange = (e) => {
         const value = parseInt(e.target.value);
@@ -72,7 +58,6 @@ const EventDetails = () => {
             return;
         }
 
-        // Navigate to payment page with event and ticket details
         navigate(`/payment/${event._id}`, {
             state: {
                 eventId: event._id,
@@ -82,6 +67,18 @@ const EventDetails = () => {
                 totalAmount: ticketQuantity * event.ticketPricing
             }
         });
+    };
+
+    const formatDate = (dateString) => {
+        const options = { 
+            weekday: 'long', 
+            year: 'numeric', 
+            month: 'long', 
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        };
+        return new Date(dateString).toLocaleDateString('en-US', options);
     };
 
     if (loading) {
@@ -94,52 +91,69 @@ const EventDetails = () => {
 
     return (
         <div className="event-details-container">
-            <div className="event-hero">
-                <div className="event-image">
-                    {event.image ? (
-                        <img src={event.image.url} alt={event.title} />
-                    ) : (
-                        <div className="no-image">No Image Available</div>
+            <div className="event-image-section">
+                {event.image?.url ? (
+                    <img src={event.image.url} alt={event.title} />
+                ) : (
+                    <div className="no-image">No Image Available</div>
+                )}
+            </div>
+
+            <div className="event-header">
+                <h1>{event.title}</h1>
+                <div className="event-meta">
+                    <span className="event-category">
+                        <FaTag /> {event.category}
+                    </span>
+                    {(isOrganizer || user?.role === ROLES.ADMIN) && (
+                        <span className={`event-status ${event.status}`}>
+                            <FaShieldAlt /> {event.status}
+                        </span>
                     )}
-                </div>
-                <div className="event-hero-content">
-                    <div className="event-header">
-                        <h1>{event.title}</h1>
-                        <div className="event-meta">
-                            <span className="event-category">{event.category}</span>
-                            <span className={`event-status ${event.status}`}>{event.status}</span>
-                        </div>
-                    </div>
-                    <div className="event-quick-info">
-                        <div className="info-item">
-                            <FaCalendar />
-                            <span>{new Date(event.date).toLocaleDateString()}</span>
-                        </div>
-                        <div className="info-item">
-                            <FaClock />
-                            <span>{event.time}</span>
-                        </div>
-                        <div className="info-item">
-                            <FaMapMarkerAlt />
-                            <span>{event.location}</span>
-                        </div>
-                        <div className="info-item">
-                            <FaTicketAlt />
-                            <span>${event.ticketPricing} per ticket</span>
-                        </div>
-                    </div>
                 </div>
             </div>
 
             <div className="event-main-content">
                 <div className="event-description-section">
                     <h2><FaInfoCircle /> About This Event</h2>
-                    <p className="event-description">{event.description}</p>
+                    <div className="description-content">
+                        <div className="description-text">
+                            {event.description.split('\n').map((line, index) => (
+                                <p key={index}>{line}</p>
+                            ))}
+                        </div>
+                        <div className="description-meta">
+                            <span className="event-category">
+                                <FaTag /> {event.category}
+                            </span>
+                            <span className="event-location">
+                                <FaMapMarkerAlt /> {event.location}
+                            </span>
+                        </div>
+                    </div>
+                    <div className="event-details-grid">
+                        <div className="detail-item">
+                            <h4><FaTag /> Event Category</h4>
+                            <p>{event.category || 'Not specified'}</p>
+                        </div>
+                        <div className="detail-item">
+                            <h4><FaMapMarkerAlt /> Location</h4>
+                            <p>{event.location || 'Not specified'}</p>
+                        </div>
+                        <div className="detail-item">
+                            <h4><FaCalendar /> Date & Time</h4>
+                            <p>{formatDate(event.date)}</p>
+                        </div>
+                        <div className="detail-item">
+                            <h4><FaTicketAlt /> Total Tickets</h4>
+                            <p>{event.totalTickets || 0} tickets</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="event-sidebar">
                     <div className="ticket-card">
-                        <h3>Ticket Information</h3>
+                        <h3>Book Tickets</h3>
                         <div className="ticket-details">
                             <div className="ticket-price">
                                 <span className="price-label">Price per ticket</span>
@@ -192,7 +206,7 @@ const EventDetails = () => {
                         <h3>Event Organizer</h3>
                         <div className="organizer-info">
                             <FaUser />
-                            <span>{event.organizer.name}</span>
+                            <span>{event.organizer?.name || 'Unknown Organizer'}</span>
                         </div>
                     </div>
                 </div>

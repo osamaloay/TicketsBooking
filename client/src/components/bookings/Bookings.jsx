@@ -1,12 +1,13 @@
 // client/src/components/bookings/Bookings.jsx
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { bookingService , userService} from '../../services/api';
+import { bookingService, userService } from '../../services/api';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { ErrorMessage } from '../shared/ErrorMessage';
 import { Button } from '../shared/Button';
 import { toast } from 'react-toastify';
-import '../../styles/bookings.css';
+import { FaCalendarAlt, FaMapMarkerAlt, FaTicketAlt, FaDollarSign, FaInfoCircle, FaTimes } from 'react-icons/fa';
+import '../../styles/Bookings.css';
 import { useNavigate } from 'react-router-dom';
 
 const Bookings = () => {
@@ -37,7 +38,6 @@ const Bookings = () => {
         try {
             await bookingService.cancelBooking(bookingId);
             toast.success('Booking cancelled successfully');
-            // Refresh bookings list
             fetchBookings();
         } catch (error) {
             toast.error('Failed to cancel booking');
@@ -53,52 +53,85 @@ const Bookings = () => {
 
     return (
         <div className="bookings-container">
-            <h2>My Bookings</h2>
+            <div className="bookings-header">
+                <h2>My Bookings</h2>
+                <p>Manage your event tickets and bookings</p>
+            </div>
             
             {bookings.length === 0 ? (
-                <p className="no-bookings">You haven't made any bookings yet.</p>
+                <div className="no-bookings">
+                    <FaTicketAlt className="no-bookings-icon" />
+                    <h3>No Bookings Yet</h3>
+                    <p>You haven't made any bookings yet. Start exploring events!</p>
+                    <Button 
+                        variant="primary"
+                        onClick={() => navigate('/events')}
+                    >
+                        Browse Events
+                    </Button>
+                </div>
             ) : (
                 <div className="bookings-grid">
                     {bookings.map(booking => (
                         <div key={booking._id} className="booking-card">
-                            <div className="booking-header">
-                                <h3>{booking.event.title}</h3>
-                                <span className={`status ${booking.status}`}>
+                            <div className="booking-image">
+                                <img 
+                                    src={booking.event.image?.url || '/default-event-image.jpg'} 
+                                    alt={booking.event.title}
+                                />
+                                <div className={`status-badge ${booking.status}`}>
                                     {booking.status}
-                                </span>
+                                </div>
                             </div>
 
-                            <div className="booking-details">
-                                <p>
-                                    <strong>Date:</strong>{' '}
-                                    {new Date(booking.event.date).toLocaleDateString()}
-                                </p>
-                                <p>
-                                    <strong>Location:</strong> {booking.event.location}
-                                </p>
-                                <p>
-                                    <strong>Tickets:</strong> {booking.numberOfTickets}
-                                </p>
-                                <p>
-                                    <strong>Total Price:</strong> ${booking.totalPrice}
-                                </p>
-                            </div>
+                            <div className="booking-content">
+                                <h3 className="event-title">{booking.event.title}</h3>
+                                
+                                <div className="booking-info">
+                                    <div className="info-item">
+                                        <FaCalendarAlt className="icon" />
+                                        <span>{new Date(booking.event.date).toLocaleDateString('en-US', {
+                                            weekday: 'short',
+                                            month: 'short',
+                                            day: 'numeric',
+                                            year: 'numeric'
+                                        })}</span>
+                                    </div>
+                                    
+                                    <div className="info-item">
+                                        <FaMapMarkerAlt className="icon" />
+                                        <span>{booking.event.location}</span>
+                                    </div>
+                                    
+                                    <div className="info-item">
+                                        <FaTicketAlt className="icon" />
+                                        <span>{booking.numberOfTickets} tickets</span>
+                                    </div>
+                                    
+                                    <div className="info-item">
+                                        <FaDollarSign className="icon" />
+                                        <span>${booking.totalPrice}</span>
+                                    </div>
+                                </div>
 
-                            <div className="booking-actions">
-                                <Button
-                                    variant="primary"
-                                    onClick={() => handleViewDetails(booking._id)}
-                                >
-                                    View Details
-                                </Button>
-                                {booking.status === 'confirmed' && (
+                                <div className="booking-actions">
                                     <Button
-                                        variant="danger"
-                                        onClick={() => handleCancelBooking(booking._id)}
+                                        variant="primary"
+                                        onClick={() => handleViewDetails(booking._id)}
                                     >
-                                        Cancel Booking
+                                        <FaInfoCircle className="icon" />
+                                        View Details
                                     </Button>
-                                )}
+                                    {booking.status === 'confirmed' && (
+                                        <Button
+                                            variant="danger"
+                                            onClick={() => handleCancelBooking(booking._id)}
+                                        >
+                                            <FaTimes className="icon" />
+                                            Cancel
+                                        </Button>
+                                    )}
+                                </div>
                             </div>
                         </div>
                     ))}

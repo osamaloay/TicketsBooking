@@ -5,21 +5,65 @@ import { FaUser, FaTicketAlt, FaHome, FaCalendarAlt, FaInfoCircle, FaEnvelope, F
 import './Layout.css';
 
 const Layout = memo(({ children }) => {
-    const { isAuthenticated, isUser, role, ROLES } = useAuth();
+    const { isAuthenticated, user, role, ROLES } = useAuth();
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const toggleSidebar = () => {
         setIsSidebarOpen(!isSidebarOpen);
     };
 
-    // Add these console logs for debugging
-    console.log('Layout - isAuthenticated:', isAuthenticated);
-    console.log('Layout - isUser:', isUser);
-    console.log('Layout - role:', role);
-    console.log('Layout - ROLES:', ROLES);
-    console.log('Layout - role === ROLES.ADMIN:', role === ROLES.ADMIN);
-    console.log('Layout - role type:', typeof role);
-    console.log('Layout - ROLES.ADMIN type:', typeof ROLES.ADMIN);
+    const toggleMobileMenu = () => {
+        setIsMobileMenuOpen(!isMobileMenuOpen);
+    };
+
+    const renderNavLinks = () => {
+        // Common links for all users
+        const commonLinks = [
+            { to: '/', icon: <FaHome />, text: 'Home' }
+        ];
+
+        // Add Events link only for non-organizers and non-admins
+        if (role !== ROLES.ORGANIZER && role !== ROLES.ADMIN && role !== ROLES.USER) {
+            commonLinks.push({ to: '/events', icon: <FaCalendarAlt />, text: 'Events' });
+        }
+
+        // Role-specific links
+        const roleLinks = {
+            [ROLES.USER]: [
+                { to: '/bookings', icon: <FaTicketAlt />, text: 'My Bookings' }
+            ],
+            [ROLES.ORGANIZER]: [
+                { to: '/my-events/new', icon: <FaPlus />, text: 'Create Event' },
+                { to: '/my-events/overview', icon: <FaChartBar />, text: 'Analytics' }
+            ],
+            [ROLES.ADMIN]: [
+                { to: '/admin/dashboard', icon: <FaChartBar />, text: 'Dashboard' },
+                { to: '/admin/users', icon: <FaUsers />, text: 'Manage Users' },
+                { to: '/admin/events', icon: <FaCalendarAlt />, text: 'Manage Events' }
+            ]
+        };
+
+        // Combine common links with role-specific links
+        const allLinks = [...commonLinks];
+        if (isAuthenticated && roleLinks[role]) {
+            // For organizers, replace Home with My Events
+            if (role === ROLES.ORGANIZER) {
+                allLinks[0] = { to: '/my-events', icon: <FaCalendarAlt />, text: 'My Events' };
+            }
+            // For admins, replace Home with Dashboard
+            if (role === ROLES.ADMIN) {
+                allLinks[0] = { to: '/admin/dashboard', icon: <FaChartBar />, text: 'Dashboard' };
+            }
+            allLinks.push(...roleLinks[role]);
+        }
+
+        return allLinks.map((link, index) => (
+            <Link key={index} to={link.to} className="nav-link">
+                {link.icon} {link.text}
+            </Link>
+        ));
+    };
 
     return (
         <div className="layout">
@@ -31,66 +75,25 @@ const Layout = memo(({ children }) => {
                     </button>
                     <Link to="/">Ticketiez</Link>
                 </div>
-                <div className="nav-links">
-                    <Link to="/" className="nav-link">
-                        <FaHome className="icon" /> Home
-                    </Link>
-                    <Link to="/events" className="nav-link">
-                        <FaCalendarAlt className="icon" /> Events
-                    </Link>
-                    <Link to="/about" className="nav-link">
-                        <FaInfoCircle className="icon" /> About
-                    </Link>
-                    <Link to="/contact" className="nav-link">
-                        <FaEnvelope className="icon" /> Contact
-                    </Link>
-                    {isAuthenticated && role === ROLES.USER && (
-                        <Link to="/bookings" className="nav-link">
-                            <FaTicketAlt className="icon" /> My Bookings
-                        </Link>
-                    )}
-                    {isAuthenticated && role === ROLES.ORGANIZER && (
-                        <>
-                            <Link to="/my-events" className="nav-link">
-                                <FaCalendarAlt className="icon" /> My Events
-                            </Link>
-                            <Link to="/my-events/new" className="nav-link">
-                                <FaPlus className="icon" /> Create Event
-                            </Link>
-                            <Link to="/my-events/analytics" className="nav-link">
-                                <FaChartBar className="icon" /> Analytics
-                            </Link>
-                        </>
-                    )}
-                    {isAuthenticated && role === 'System Admin' && (
-                        <>
-                            <Link to="/admin/events" className="nav-link">
-                                <FaCalendarAlt className="icon" /> Manage Events
-                            </Link>
-                            <Link to="/admin/users" className="nav-link">
-                                <FaUsers className="icon" /> Manage Users
-                            </Link>
-                            <Link to="/admin/settings" className="nav-link">
-                                <FaCog className="icon" /> Settings
-                            </Link>
-                        </>
-                    )}
+                <div className={`nav-links ${isMobileMenuOpen ? 'active' : ''}`}>
+                    {renderNavLinks()}
                 </div>
-                <div className="auth-icon">
-                    {!isAuthenticated ? (
+                <div className="nav-auth">
+                    {isAuthenticated ? (
                         <div className="auth-dropdown">
-                            <FaUser className="user-icon" />
-                            <div className="dropdown-content">
-                                <Link to="/login">Login</Link>
-                                <Link to="/register">Sign Up</Link>
-                            </div>
+                            <Link to="/profile" className="nav-link">
+                                <FaUser /> {user?.name || 'Profile'}
+                            </Link>
                         </div>
                     ) : (
-                        <Link to="/profile">
-                            <FaUser className="user-icon" />
+                        <Link to="/login" className="nav-link">
+                            <FaUser /> Login
                         </Link>
                     )}
                 </div>
+                <button className="mobile-menu-toggle" onClick={toggleMobileMenu}>
+                    {isMobileMenuOpen ? <FaTimes /> : <FaBars />}
+                </button>
             </nav>
 
             <div className="layout-content">
@@ -106,23 +109,18 @@ const Layout = memo(({ children }) => {
                         </ul>
                         
                         {/* Admin Quick Actions */}
-                        {isAuthenticated && role === 'System Admin' && (
+                        {isAuthenticated && role === ROLES.ADMIN && (
                             <>
-                                <h3>Admin Actions</h3>
+                                <h3>Quick Actions</h3>
                                 <ul>
-                                    <li>
-                                        <Link to="/admin/events">
-                                            <FaCalendarAlt className="icon" /> Manage Events
-                                        </Link>
-                                    </li>
                                     <li>
                                         <Link to="/admin/users">
                                             <FaUsers className="icon" /> Manage Users
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link to="/admin/settings">
-                                            <FaCog className="icon" /> Settings
+                                        <Link to="/admin/events">
+                                            <FaCalendarAlt className="icon" /> Manage Events
                                         </Link>
                                     </li>
                                 </ul>
@@ -145,7 +143,7 @@ const Layout = memo(({ children }) => {
                                         </Link>
                                     </li>
                                     <li>
-                                        <Link to="/my-events/analytics">
+                                        <Link to="/my-events/overview">
                                             <FaChartBar className="icon" /> View Analytics
                                         </Link>
                                     </li>
