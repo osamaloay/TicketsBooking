@@ -79,17 +79,20 @@ const userController = {
         try { 
             const userId = req.params.id;
             const { role } = req.body;
-            const userToUpdate = await findByIdAndUpdate(userId, { role }, { new: true });
+            const userToUpdate = await userModel.findByIdAndUpdate(
+                userId, 
+                { role }, 
+                { new: true, runValidators: true }
+            );
             if (!userToUpdate) {
                 return res.status(404).json({ message: 'User not found' });
             }
             res.status(200).json(userToUpdate);
         }
         catch (error) {
-    
-            res.status(500).json({ message: 'Error updating user role', error });
+            console.error('Error updating user role:', error);
+            res.status(500).json({ message: 'Error updating user role', error: error.message });
         }
-        
     },
     deleteUser : async (req, res) => {
         try {

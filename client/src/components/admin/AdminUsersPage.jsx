@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { userService } from '../../services/api';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { ErrorMessage } from '../shared/ErrorMessage';
+import { FaUserShield, FaUserTie, FaUserCircle, FaEdit, FaTrash, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import './AdminUsersPage.css';
 
 const AdminUsersPage = () => {
@@ -48,6 +49,17 @@ const AdminUsersPage = () => {
         }
     };
 
+    const getRoleIcon = (role) => {
+        switch (role) {
+            case 'admin':
+                return <FaUserShield />;
+            case 'organizer':
+                return <FaUserTie />;
+            default:
+                return <FaUserCircle />;
+        }
+    };
+
     if (loading) return <LoadingSpinner />;
     if (error) return <ErrorMessage message={error} />;
 
@@ -63,6 +75,7 @@ const AdminUsersPage = () => {
                             <th>Name</th>
                             <th>Email</th>
                             <th>Role</th>
+                            <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -71,22 +84,36 @@ const AdminUsersPage = () => {
                             <tr key={user._id}>
                                 <td>{user.name}</td>
                                 <td>{user.email}</td>
-                                <td>{user.role}</td>
+                                <td>
+                                    <div className="role-badge">
+                                        {getRoleIcon(user.role)}
+                                        <select 
+                                            value={user.role}
+                                            onChange={(e) => handleRoleUpdate(user._id, e.target.value)}
+                                            className="role-select"
+                                        >
+                                            <option value="Standard User">Standard User</option>
+                                            <option value="Organizer">Organizer</option>
+                                            <option value="System Admin">System Admin</option>
+                                        </select>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span className={`user-status status-${user.isActive ? 'active' : 'inactive'}`}>
+                                        {user.isActive ? <FaCheckCircle /> : <FaTimesCircle />}
+                                        {user.isActive ? 'Active' : 'Inactive'}
+                                    </span>
+                                </td>
                                 <td className="actions-cell">
-                                    <select 
-                                        value={user.role}
-                                        onChange={(e) => handleRoleUpdate(user._id, e.target.value)}
-                                        className="role-select"
-                                    >
-                                        <option value="Standard User">Standard User</option>
-                                        <option value="Organizer">Organizer</option>
-                                        <option value="System Admin">System Admin</option>
-                                    </select>
+                                    <button className="edit-btn" title="Edit User">
+                                        <FaEdit />
+                                    </button>
                                     <button 
-                                        className="delete-btn"
+                                        className="delete-btn" 
                                         onClick={() => handleDeleteUser(user._id)}
+                                        title="Delete User"
                                     >
-                                        Delete
+                                        <FaTrash />
                                     </button>
                                 </td>
                             </tr>
