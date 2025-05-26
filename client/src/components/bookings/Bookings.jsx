@@ -55,7 +55,7 @@ const Bookings = () => {
         <div className="bookings-container">
             <div className="bookings-header">
                 <h2>My Bookings</h2>
-                <p>Manage your event tickets and bookings</p>
+                <p className="booking-subtitle">🎟️ Manage your event tickets and bookings 📅</p>
             </div>
             
             {bookings.length === 0 ? (
