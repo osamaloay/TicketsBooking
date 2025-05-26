@@ -16,6 +16,9 @@ import NotFound from '../pages/NotFound'
 // Event Components
 import EventList from '../components/events/EventList'
 import EventDetails from '../components/events/EventDetails'
+import MyEventsPage from '../components/events/MyEventsPage'
+import EventForm from '../components/events/EventForm'
+import EventAnalytics from '../components/events/EventAnalytics'
 
 // Payment Components
 import Payment from '../components/payment/Payment'
@@ -25,8 +28,8 @@ import Bookings from '../components/bookings/Bookings'
 import BookingDetails from '../components/bookings/BookingDetails'
 
 // Protected Route Component with role-based access
-const ProtectedRoute = ({ children, allowedRoles = [] }) => {
-    const { isAuthenticated, user } = useAuth()
+const ProtectedRoute = ({ children, roles = [] }) => {
+    const { isAuthenticated, user, ROLES } = useAuth()
 
     if (!isAuthenticated) {
         // Store the current path for redirect after login
@@ -34,16 +37,17 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
         return <Navigate to="/login" />
     }
 
-    // If allowedRoles is specified, check user role
-    if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
-        return <Navigate to="/dashboard" />
+    // If roles is specified, check user role
+    if (roles.length > 0 && !roles.includes(user.role)) {
+        console.log('Role check failed:', { userRole: user.role, requiredRoles: roles });
+        return <Navigate to="/" />
     }
 
     return children
 }
 
 const AppRoutes = () => {
-    const { isAuthenticated } = useAuth()
+    const { isAuthenticated, ROLES } = useAuth()
 
     return (
         <Routes>
@@ -87,7 +91,7 @@ const AppRoutes = () => {
             } />
             <Route path="/bookings" element={
                 <Layout>
-                    <ProtectedRoute>
+                    <ProtectedRoute roles={[ROLES.USER]}>
                         <Bookings />
                     </ProtectedRoute>
                 </Layout>
@@ -99,7 +103,43 @@ const AppRoutes = () => {
                     </ProtectedRoute>
                 </Layout>
             } />
-            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/profile" element={
+                <Layout>
+                    <ProtectedRoute>
+                        <ProfilePage />
+                    </ProtectedRoute>
+                </Layout>
+            } />
+
+            {/* Organizer routes */}
+            <Route path="/my-events" element={
+                <Layout>
+                    <ProtectedRoute roles={[ROLES.ORGANIZER]}>
+                        <MyEventsPage />
+                    </ProtectedRoute>
+                </Layout>
+            } />
+            <Route path="/my-events/new" element={
+                <Layout>
+                    <ProtectedRoute roles={[ROLES.ORGANIZER]}>
+                        <EventForm />
+                    </ProtectedRoute>
+                </Layout>
+            } />
+            <Route path="/my-events/:id/edit" element={
+                <Layout>
+                    <ProtectedRoute roles={[ROLES.ORGANIZER]}>
+                        <EventForm />
+                    </ProtectedRoute>
+                </Layout>
+            } />
+            <Route path="/my-events/analytics" element={
+                <Layout>
+                    <ProtectedRoute roles={[ROLES.ORGANIZER]}>
+                        <EventAnalytics />
+                    </ProtectedRoute>
+                </Layout>
+            } />
             
             {/* 404 Route */}
             <Route path="*" element={<NotFound />} />

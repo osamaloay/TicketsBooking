@@ -1,7 +1,7 @@
 import React, { memo, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { FaUser, FaTicketAlt, FaHome, FaCalendarAlt, FaInfoCircle, FaEnvelope, FaBars, FaTimes } from 'react-icons/fa';
+import { FaUser, FaTicketAlt, FaHome, FaCalendarAlt, FaInfoCircle, FaEnvelope, FaBars, FaTimes, FaPlus, FaChartBar, FaEdit } from 'react-icons/fa';
 import './Layout.css';
 
 const Layout = memo(({ children }) => {
@@ -46,6 +46,19 @@ const Layout = memo(({ children }) => {
                             <FaTicketAlt className="icon" /> My Bookings
                         </Link>
                     )}
+                    {isAuthenticated && role === ROLES.ORGANIZER && (
+                        <>
+                            <Link to="/my-events" className="nav-link">
+                                <FaCalendarAlt className="icon" /> My Events
+                            </Link>
+                            <Link to="/my-events/new" className="nav-link">
+                                <FaPlus className="icon" /> Create Event
+                            </Link>
+                            <Link to="/my-events/analytics" className="nav-link">
+                                <FaChartBar className="icon" /> Analytics
+                            </Link>
+                        </>
+                    )}
                 </div>
                 <div className="auth-icon">
                     {!isAuthenticated ? (
@@ -75,6 +88,30 @@ const Layout = memo(({ children }) => {
                             <li><Link to="/events?category=arts">Arts</Link></li>
                             <li><Link to="/events?category=technology">Technology</Link></li>
                         </ul>
+                        
+                        {/* Organizer Quick Actions */}
+                        {isAuthenticated && role === ROLES.ORGANIZER && (
+                            <>
+                                <h3>Quick Actions</h3>
+                                <ul>
+                                    <li>
+                                        <Link to="/my-events/new">
+                                            <FaPlus className="icon" /> Create Event
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link to="/my-events">
+                                            <FaCalendarAlt className="icon" /> My Events
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link to="/my-events/analytics">
+                                            <FaChartBar className="icon" /> View Analytics
+                                        </Link>
+                                    </li>
+                                </ul>
+                            </>
+                        )}
                     </div>
                 </aside>
 

@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { useEvent } from '../../context/EventContext';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { ErrorMessage } from '../shared/ErrorMessage';
+import { FaCalendarAlt, FaMapMarkerAlt, FaTicketAlt, FaUsers } from 'react-icons/fa';
+import './EventList.css';
 
 const EventList = () => {
     const { 
@@ -34,28 +36,75 @@ const EventList = () => {
     }
 
     if (!events || events.length === 0) {
-        return <div>No events found</div>;
+        return (
+            <div className="no-events">
+                <h2>No Events Found</h2>
+                <p>Check back later for exciting events!</p>
+            </div>
+        );
     }
 
     return (
-        <div className="events-grid">
-            {events.map(event => (
-                <Link to={`/events/${event._id}`} key={event._id}>
-                    <div className="event-card">
-                        <img 
-                            src={event.image || '/default-event-image.jpg'} 
-                            alt={event.title} 
-                        />
-                        <div className="event-info">
-                            <h3>{event.title}</h3>
-                            <p>{new Date(event.date).toLocaleDateString()}</p>
-                            <p>{event.location}</p>
-                            <p>${event.ticketPricing}</p>
-                            <p>Available: {event.remainingTickets}</p>
+        <div className="events-container">
+            <div className="events-header">
+                <h1>Upcoming Events</h1>
+                <p>Discover and book tickets for amazing events</p>
+            </div>
+            
+            <div className="events-grid">
+                {events.map(event => (
+                    <Link to={`/events/${event._id}`} key={event._id} className="event-link">
+                        <div className="event-card">
+                            <div className="event-image-container">
+                                <img 
+                                    src={event.image?.url || '/default-event-image.jpg'} 
+                                    alt={event.title}
+                                    className="event-image"
+                                />
+                                <div className="event-category">{event.category}</div>
+                            </div>
+                            
+                            <div className="event-info">
+                                <h3 className="event-title">{event.title}</h3>
+                                
+                                <div className="event-details">
+                                    <div className="event-detail">
+                                        <FaCalendarAlt className="icon" />
+                                        <span>{new Date(event.date).toLocaleDateString('en-US', {
+                                            weekday: 'short',
+                                            month: 'short',
+                                            day: 'numeric',
+                                            year: 'numeric'
+                                        })}</span>
+                                    </div>
+                                    
+                                    <div className="event-detail">
+                                        <FaMapMarkerAlt className="icon" />
+                                        <span>{event.location}</span>
+                                    </div>
+                                    
+                                    <div className="event-detail">
+                                        <FaTicketAlt className="icon" />
+                                        <span>${event.ticketPricing}</span>
+                                    </div>
+                                    
+                                    <div className="event-detail">
+                                        <FaUsers className="icon" />
+                                        <span>{event.remainingTickets} tickets left</span>
+                                    </div>
+                                </div>
+                                
+                                <div className="event-footer">
+                                    <span className="event-status">
+                                        {event.remainingTickets > 0 ? 'Available' : 'Sold Out'}
+                                    </span>
+                                    <button className="view-details-btn">View Details</button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </Link>
-            ))}
+                    </Link>
+                ))}
+            </div>
         </div>
     );
 };

@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }) => {
     const [loginLoading, setLoginLoading] = useState(false);
     const [registerLoading, setRegisterLoading] = useState(false);
     const [verifyLoading, setVerifyLoading] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
 
     // Auto login on reload
@@ -51,6 +52,7 @@ export const AuthProvider = ({ children }) => {
                     }
                     setUser(userData);
                     setRole(userData.role);
+                    setIsAuthenticated(true);
                 } catch (error) {
                     console.error("Failed to load your data", error);
                     // Clear invalid token
@@ -95,22 +97,25 @@ export const AuthProvider = ({ children }) => {
     };
 
     const login = async (email, password) => {
-        setLoginLoading(true);
         try {
-            const response = await api.post('/login', { email, password });
-            setPendingUser({ email });
-            toast.success("Verify your OTP  🎈 ");
-            navigate('/verify', { 
-                state: { 
-                    type: 'login',
-                    email: email 
-                } 
-            });
-            return response.data;
+            const response = await authService.login(email, password);
+            const { token, user } = response.data;
+            
+            // Store token and user data
+            localStorage.setItem('token', token);
+            setUser(user);
+            setIsAuthenticated(true);
+            setRole(user.role);
+            
+            console.log('Login successful:', { user, role: user.role });
+            
+            return { success: true };
         } catch (error) {
-            throw error;
-        } finally {
-            setLoginLoading(false);
+            console.error('Login error:', error);
+            return { 
+                success: false, 
+                error: error.response?.data?.message || 'Login failed' 
+            };
         }
     };
 
@@ -133,8 +138,19 @@ export const AuthProvider = ({ children }) => {
                 localStorage.removeItem('redirectAfterLogin');
                 navigate(redirectPath);
             } else {
-                // Always redirect to home page after login
-                navigate('/');
+                // Role-based redirects
+                switch (userData.role) {
+                    case ROLES.ORGANIZER:
+                        navigate('/my-events');
+                        break;
+                    case ROLES.ADMIN:
+                        navigate('/admin/dashboard');
+                        break;
+                    case ROLES.USER:
+                    default:
+                        navigate('/');
+                        break;
+                }
             }
             return response;
         } catch (error) {
@@ -218,7 +234,6 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const isAuthenticated = !!localStorage.getItem('token') && !!user && !!role;
     const isAdmin = role === ROLES.ADMIN;
     const isOrganizer = role === ROLES.ORGANIZER;
     const isUser = role === ROLES.USER;
