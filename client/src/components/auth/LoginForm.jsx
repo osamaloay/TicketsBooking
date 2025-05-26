@@ -17,8 +17,10 @@ const LoginForm = () => {
         setError(null);
         
         try {
-            // Just call login and let AuthContext handle the navigation
-            await login(formData.email, formData.password);
+            const result = await login(formData.email, formData.password);
+            if (!result.success) {
+                setError(result.error);
+            }
         } catch (error) {
             console.error('Login error:', error);
             setError(error.response?.data?.message || 'Login failed');
@@ -36,6 +38,7 @@ const LoginForm = () => {
 
     return (
         <form onSubmit={handleSubmit} className="auth-form">
+            <h2>Login</h2>
             {error && <ErrorMessage message={error} />}
             
             <div className="form-group">

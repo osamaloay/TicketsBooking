@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useLocation } from 'react-router-dom';
 import { Button } from '../shared/Button';
 import { LoadingSpinner } from '../shared/LoadingSpinner';
 import { ErrorMessage } from '../shared/ErrorMessage';
-import { useLocation } from 'react-router-dom';
 
 const OTPVerificationForm = () => {
+    const { verifyOTPLogin, verifyOTPRegister, verifyOTPForgotPassword, verifyLoading } = useAuth();
     const location = useLocation();
-    const { type, email } = location.state || {};
-    const { verifyOTPLogin, verifyOTPRegister, verifyOTPForgotPassword } = useAuth();
     const [otp, setOtp] = useState('');
-    const [password, setPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(false);
 
-    // Add console logs to debug state
+    // Get verification type and email from location state
+    const { type, email } = location.state || {};
+    
     console.log('OTPVerificationForm location state:', location.state);
     console.log('OTPVerificationForm type:', type);
     console.log('OTPVerificationForm email:', email);
@@ -23,10 +23,19 @@ const OTPVerificationForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(null);
-        setLoading(true);
+
+        if (!type || !email) {
+            setError('Missing verification information');
+            return;
+        }
+
+        // Validate passwords match for forgot password flow
+        if ((type === 'forgot' || type === 'forgot-password') && newPassword !== confirmPassword) {
+            setError('Passwords do not match');
+            return;
+        }
 
         try {
-            console.log('Verifying OTP for type:', type);
             switch (type) {
                 case 'login':
                     await verifyOTPLogin(otp);
@@ -34,53 +43,54 @@ const OTPVerificationForm = () => {
                 case 'register':
                     await verifyOTPRegister(otp);
                     break;
+                case 'forgot':
                 case 'forgot-password':
-                    if (password !== confirmPassword) {
-                        setError("Passwords don't match");
-                        setLoading(false);
-                        return;
-                    }
-                    await verifyOTPForgotPassword({ email, otp, newPassword: password });
+                    // Only send what the backend expects
+                    await verifyOTPForgotPassword({ 
+                        email, 
+                        otp, 
+                        newPassword 
+                    });
                     break;
                 default:
-                    throw new Error('Invalid verification type');
+                    setError('Invalid verification type');
             }
         } catch (error) {
             console.error('OTP verification error:', error);
-            setError(error.response?.data?.message || 'Verification failed');
-            setLoading(false);
+            setError(error.response?.data?.message || error.message || 'Verification failed');
         }
     };
+
+    if (verifyLoading) return <LoadingSpinner />;
 
     return (
         <form onSubmit={handleSubmit} className="auth-form">
             <h2>Verify OTP</h2>
-            <p>Enter the OTP sent to {email}</p>
+            {error && <ErrorMessage message={error} />}
             
             <div className="form-group">
-                <label htmlFor="otp">OTP</label>
+                <label htmlFor="otp">Enter OTP</label>
                 <input
                     type="text"
                     id="otp"
                     value={otp}
                     onChange={(e) => setOtp(e.target.value)}
                     required
-                    disabled={loading}
+                    placeholder="Enter the OTP sent to your email"
                 />
             </div>
 
-            {type === 'forgot-password' && (
+            {(type === 'forgot' || type === 'forgot-password') && (
                 <>
                     <div className="form-group">
-                        <label htmlFor="password">New Password</label>
+                        <label htmlFor="newPassword">New Password</label>
                         <input
                             type="password"
-                            id="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
+                            id="newPassword"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
                             required
-                            minLength="6"
-                            disabled={loading}
+                            placeholder="Enter new password"
                         />
                     </div>
 
@@ -92,21 +102,14 @@ const OTPVerificationForm = () => {
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             required
-                            minLength="6"
-                            disabled={loading}
+                            placeholder="Confirm new password"
                         />
                     </div>
                 </>
             )}
 
-            {error && <ErrorMessage message={error} />}
-
-            <Button type="submit" variant="primary" fullWidth disabled={loading}>
-                {loading ? (
-                    <LoadingSpinner />
-                ) : (
-                    type === 'forgot-password' ? 'Reset Password' : 'Verify OTP'
-                )}
+            <Button type="submit" variant="primary" fullWidth>
+                Verify
             </Button>
         </form>
     );

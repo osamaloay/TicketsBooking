@@ -1,0 +1,68 @@
+.user-row {
+    transition: background-color 0.3s ease;
+}
+
+.user-row:hover {
+    background-color: #f8f9fa;
+}
+
+.user-row td {
+    vertical-align: middle;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: capitalize;
+}
+
+.role-badge.admin {
+    background-color: #dc3545;
+    color: white;
+}
+
+.role-badge.organizer {
+    background-color: #28a745;
+    color: white;
+}
+
+.role-badge.user {
+    background-color: #6c757d;
+    color: white;
+}
+
+.actions-cell {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.update-role-btn,
+.delete-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.875rem;
+}
+
+.update-role-btn {
+    background-color: #007bff;
+    color: white;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.update-role-btn:hover {
+    background-color: #0056b3;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+} 

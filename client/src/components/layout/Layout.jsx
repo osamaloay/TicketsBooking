@@ -1,7 +1,7 @@
 import React, { memo, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { Link } from 'react-router-dom';
-import { FaUser, FaTicketAlt, FaHome, FaCalendarAlt, FaInfoCircle, FaEnvelope, FaBars, FaTimes, FaPlus, FaChartBar, FaEdit } from 'react-icons/fa';
+import { FaUser, FaTicketAlt, FaHome, FaCalendarAlt, FaInfoCircle, FaEnvelope, FaBars, FaTimes, FaPlus, FaChartBar, FaEdit, FaUsers, FaCog } from 'react-icons/fa';
 import './Layout.css';
 
 const Layout = memo(({ children }) => {
@@ -17,6 +17,9 @@ const Layout = memo(({ children }) => {
     console.log('Layout - isUser:', isUser);
     console.log('Layout - role:', role);
     console.log('Layout - ROLES:', ROLES);
+    console.log('Layout - role === ROLES.ADMIN:', role === ROLES.ADMIN);
+    console.log('Layout - role type:', typeof role);
+    console.log('Layout - ROLES.ADMIN type:', typeof ROLES.ADMIN);
 
     return (
         <div className="layout">
@@ -59,6 +62,19 @@ const Layout = memo(({ children }) => {
                             </Link>
                         </>
                     )}
+                    {isAuthenticated && role === 'System Admin' && (
+                        <>
+                            <Link to="/admin/events" className="nav-link">
+                                <FaCalendarAlt className="icon" /> Manage Events
+                            </Link>
+                            <Link to="/admin/users" className="nav-link">
+                                <FaUsers className="icon" /> Manage Users
+                            </Link>
+                            <Link to="/admin/settings" className="nav-link">
+                                <FaCog className="icon" /> Settings
+                            </Link>
+                        </>
+                    )}
                 </div>
                 <div className="auth-icon">
                     {!isAuthenticated ? (
@@ -88,6 +104,30 @@ const Layout = memo(({ children }) => {
                             <li><Link to="/events?category=arts">Arts</Link></li>
                             <li><Link to="/events?category=technology">Technology</Link></li>
                         </ul>
+                        
+                        {/* Admin Quick Actions */}
+                        {isAuthenticated && role === 'System Admin' && (
+                            <>
+                                <h3>Admin Actions</h3>
+                                <ul>
+                                    <li>
+                                        <Link to="/admin/events">
+                                            <FaCalendarAlt className="icon" /> Manage Events
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link to="/admin/users">
+                                            <FaUsers className="icon" /> Manage Users
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link to="/admin/settings">
+                                            <FaCog className="icon" /> Settings
+                                        </Link>
+                                    </li>
+                                </ul>
+                            </>
+                        )}
                         
                         {/* Organizer Quick Actions */}
                         {isAuthenticated && role === ROLES.ORGANIZER && (

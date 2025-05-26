@@ -26,12 +26,14 @@ const handleError = (error) => {
 
 // Auth services
 export const authService = {
-    login: async (email,password) => {
+    login: async (email, password) => {
         try {
-            const response = await api.post('/login', {email,password});
-            return response.data;
+            const response = await api.post('/login', { email, password });
+            console.log('Login API response:', response);
+            return response;
         } catch (error) {
-            return handleError(error);
+            console.error('Login API error:', error);
+            throw error;
         }
     },
     register: async (userData) => {
@@ -85,7 +87,7 @@ export const authService = {
         } catch (error) {
             throw error;
         }
-    }   
+    }
 };
 
 

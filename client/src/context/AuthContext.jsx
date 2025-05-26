@@ -39,30 +39,49 @@ export const AuthProvider = ({ children }) => {
     useEffect(() => {
         const restoreUser = async () => {
             const token = localStorage.getItem('token');
+            console.log('Token exists:', !!token);
             if (token) {
                 try {
+                    // Set auth header
+                    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+                    
                     // Validate token with backend
                     const userData = await userService.getUserProfile();
+                    console.log('User data from API:', userData);
                     if (!userData) {
                         // If no user data, token is invalid
                         localStorage.removeItem('token');
+                        delete api.defaults.headers.common['Authorization'];
                         setUser(null);
                         setRole(null);
+                        setIsAuthenticated(false);
                         return;
                     }
+                    
+                    // Set auth state
                     setUser(userData);
                     setRole(userData.role);
                     setIsAuthenticated(true);
+                    
+                    console.log('Auth state restored:', {
+                        user: userData,
+                        role: userData.role,
+                        isAuthenticated: true,
+                        token: token
+                    });
                 } catch (error) {
                     console.error("Failed to load your data", error);
                     // Clear invalid token
                     localStorage.removeItem('token');
+                    delete api.defaults.headers.common['Authorization'];
                     setUser(null);
                     setRole(null);
+                    setIsAuthenticated(false);
                 }
             } else {
                 setUser(null);
                 setRole(null);
+                setIsAuthenticated(false);
             }
             setLoading(false);
         };
@@ -97,25 +116,32 @@ export const AuthProvider = ({ children }) => {
     };
 
     const login = async (email, password) => {
+        setLoginLoading(true);
         try {
             const response = await authService.login(email, password);
-            const { token, user } = response.data;
+            console.log('Login response:', response);
             
-            // Store token and user data
-            localStorage.setItem('token', token);
-            setUser(user);
-            setIsAuthenticated(true);
-            setRole(user.role);
+            // Store email for OTP verification
+            setPendingUser({ email });
+            toast.success("Please verify your OTP 🎈");
             
-            console.log('Login successful:', { user, role: user.role });
+            // Navigate to OTP verification page
+            navigate('/verify', { 
+                state: { 
+                    type: 'login',
+                    email: email 
+                } 
+            });
             
             return { success: true };
         } catch (error) {
             console.error('Login error:', error);
             return { 
                 success: false, 
-                error: error.response?.data?.message || 'Login failed' 
+                error: error.response?.data?.message || error.message || 'Login failed' 
             };
+        } finally {
+            setLoginLoading(false);
         }
     };
 
@@ -123,15 +149,43 @@ export const AuthProvider = ({ children }) => {
         setVerifyLoading(true);
         try {
             if (!pendingUser) throw new Error("No pending user found");
-            const response = await authService.verifyOTPLogin({ email: pendingUser.email, otp });
-            localStorage.setItem('token', response.token);
-            const userData = await userService.getUserProfile();
-            console.log('User data after login:', userData);
-            setUser(userData);
-            setRole(userData.role);
+            
+            const response = await authService.verifyOTPLogin({ 
+                email: pendingUser.email, 
+                otp 
+            });
+            
+            console.log('OTP verification response:', response);
+            
+            // The response structure might be different, let's handle both cases
+            const token = response.data?.token || response.token;
+            const user = response.data?.user || response.user;
+            
+            if (!token || !user) {
+                throw new Error('Invalid response format from server');
+            }
+            
+            // Store token and user data
+            localStorage.setItem('token', token);
+            
+            // Set auth state
+            setUser(user);
+            setRole(user.role);
+            setIsAuthenticated(true);
             setPendingUser(null);
-            toast.success("Verification completed 🎇 ");
-
+            
+            // Set auth header for future requests
+            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+            
+            console.log('Login successful after OTP:', { 
+                user, 
+                role: user.role,
+                isAuthenticated: true,
+                token: token
+            });
+            
+            toast.success("Login successful! 🎉");
+            
             // Check for redirect path after successful login
             const redirectPath = localStorage.getItem('redirectAfterLogin');
             if (redirectPath) {
@@ -139,7 +193,7 @@ export const AuthProvider = ({ children }) => {
                 navigate(redirectPath);
             } else {
                 // Role-based redirects
-                switch (userData.role) {
+                switch (user.role) {
                     case ROLES.ORGANIZER:
                         navigate('/my-events');
                         break;
@@ -152,8 +206,18 @@ export const AuthProvider = ({ children }) => {
                         break;
                 }
             }
+            
             return response;
         } catch (error) {
+            console.error('OTP verification error:', error);
+            // Clear any existing auth state on error
+            localStorage.removeItem('token');
+            setUser(null);
+            setRole(null);
+            setIsAuthenticated(false);
+            delete api.defaults.headers.common['Authorization'];
+            
+            toast.error(error.response?.data?.message || 'OTP verification failed');
             throw error;
         } finally {
             setVerifyLoading(false);
@@ -205,10 +269,12 @@ export const AuthProvider = ({ children }) => {
             // Always clear everything, even if logout API call fails
             localStorage.removeItem('token');
             localStorage.removeItem('redirectAfterLogin'); // Clear any stored redirects
+            delete api.defaults.headers.common['Authorization'];
             setUser(null);
             setRole(null);
             setPendingUser(null);
             setError(null);
+            setIsAuthenticated(false);
             toast.success("Logged out successfully!");
             navigate('/');
         }
