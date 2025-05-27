@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
 const  express = require('express');
-
+const x = require('bcrypt');
 
 const db_uri = process.env.MONGO_URI;
 if (!db_uri) {
