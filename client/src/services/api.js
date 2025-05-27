@@ -156,12 +156,17 @@ export const userService = {
     getUserBookings: async () => {
         try {
             const response = await api.get('/users/booking');
-            return response.data;
+            console.log('Raw bookings response:', response); // Debug log
+            if (!response.data) {
+                throw new Error('No data received from server');
+            }
+            return Array.isArray(response.data) ? response.data : [];
         } catch (error) {
+            console.error('Error in getUserBookings:', error);
             if (error.response?.status === 403) {
                 throw new Error(`Access denied: ${error.response.data.message}`);
             }
-            return handleError(error);
+            throw handleError(error);
         }
     },
    // get organizer events done ✅

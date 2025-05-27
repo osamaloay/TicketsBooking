@@ -136,17 +136,23 @@ const EventForm = () => {
         }));
     };
 
+    const handleAddressChange = (e) => {
+        setLocation(prev => ({
+            ...prev,
+            address: e.target.value
+        }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         
-        if (!location.coordinates.lat || !location.coordinates.lng) {
-            toast.error('Please select a location on the map');
+        // Validate required fields
+        if (!formData.title || !formData.description || !formData.date || !formData.category || 
+            !formData.totalTickets || !formData.ticketPricing || !location.address || 
+            !location.coordinates.lat || !location.coordinates.lng) {
+            toast.error('Please fill in all required fields');
             return;
         }
-
-        // Log the form data before creating FormData
-        console.log('Form Data:', formData);
-        console.log('Location:', location);
 
         const eventFormData = new FormData();
         eventFormData.append('title', formData.title);
@@ -162,8 +168,8 @@ const EventForm = () => {
         eventFormData.append('category', formData.category);
         eventFormData.append('ticketPricing', formData.ticketPricing);
         eventFormData.append('totalTickets', formData.totalTickets);
-        eventFormData.append('remainingTickets', formData.totalTickets); // Set remaining tickets equal to total tickets initially
-        eventFormData.append('organizer', user._id); // Add the organizer ID
+        eventFormData.append('remainingTickets', formData.totalTickets);
+        eventFormData.append('organizer', user._id);
         if (formData.image) {
             eventFormData.append('image', formData.image);
         }
@@ -176,17 +182,33 @@ const EventForm = () => {
         try {
             setLoading(true);
             if (id) {
-                await eventService.updateEvent(id, eventFormData);
+                const response = await eventService.updateEvent(id, eventFormData);
+                console.log('Update response:', response);
                 toast.success('Event updated successfully');
             } else {
                 const response = await eventService.createEvent(eventFormData);
-                console.log('Server Response:', response);
+                console.log('Create response:', response);
                 toast.success('Event created successfully');
             }
             navigate('/my-events');
         } catch (error) {
-            console.error('Error details:', error.response?.data);
-            toast.error(error.response?.data?.message || 'Error saving event');
+            console.error('Error details:', error);
+            console.error('Error response:', error.response?.data);
+            
+            // Handle different types of errors
+            if (error.response?.data?.errors) {
+                // Handle validation errors
+                error.response.data.errors.forEach(err => toast.error(err));
+            } else if (error.response?.data?.message) {
+                // Handle server error messages
+                toast.error(error.response.data.message);
+            } else if (error.message) {
+                // Handle other error messages
+                toast.error(error.message);
+            } else {
+                // Fallback error message
+                toast.error('An error occurred while saving the event');
+            }
         } finally {
             setLoading(false);
         }
@@ -251,15 +273,22 @@ const EventForm = () => {
 
                 <div className="form-group">
                     <label>Location</label>
-                    <div className="location-display">
-                        {location.address ? (
-                            <>
-                                <p><strong>Address:</strong> {location.address}</p>
+                    <div className="location-inputs">
+                        <input
+                            type="text"
+                            placeholder="Enter event address"
+                            value={location.address}
+                            onChange={handleAddressChange}
+                            required
+                            className="address-input"
+                        />
+                        <div className="location-display">
+                            {location.coordinates.lat && location.coordinates.lng ? (
                                 <p><strong>Coordinates:</strong> {location.coordinates.lat.toFixed(6)}, {location.coordinates.lng.toFixed(6)}</p>
-                            </>
-                        ) : (
-                            <p>No location selected</p>
-                        )}
+                            ) : (
+                                <p>No location selected on map</p>
+                            )}
+                        </div>
                     </div>
                     <MapPicker 
                         onLocationSelect={handleLocationSelect}

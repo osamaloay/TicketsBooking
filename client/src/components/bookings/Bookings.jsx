@@ -23,11 +23,20 @@ function Bookings() {
 
     const fetchBookings = async () => {
         try {
+            setLoading(true);
             const response = await userService.getUserBookings();
-            setBookings(response);
+            console.log('Bookings response:', response); // Debug log
+            if (Array.isArray(response)) {
+                setBookings(response);
+            } else {
+                console.error('Invalid response format:', response);
+                setBookings([]);
+            }
             setError(null);
         } catch (error) {
-            setError(error.message);
+            console.error('Error fetching bookings:', error);
+            setError(error.message || 'Failed to fetch bookings');
+            setBookings([]);
             toast.error('Failed to fetch bookings');
         } finally {
             setLoading(false);
@@ -36,11 +45,27 @@ function Bookings() {
 
     const handleCancelBooking = async (bookingId) => {
         try {
+            // Check if booking is already cancelled
+            const booking = bookings.find(b => b._id === bookingId);
+            if (!booking) {
+                toast.error('Booking not found');
+                return;
+            }
+            
+            if (booking.status === 'cancelled') {
+                toast.info('This booking is already cancelled');
+                return;
+            }
+
+            setLoading(true);
             await bookingService.cancelBooking(bookingId);
             toast.success('Booking cancelled successfully');
-            fetchBookings();
+            await fetchBookings();
         } catch (error) {
-            toast.error('Failed to cancel booking');
+            console.error('Error canceling booking:', error);
+            toast.error(error.message || 'Failed to cancel booking');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -58,7 +83,7 @@ function Bookings() {
                 <p className="booking-subtitle">🎟️ Manage your event tickets and bookings 📅</p>
             </div>
             
-            {bookings.length === 0 ? (
+            {!loading && bookings.length === 0 ? (
                 <div className="no-bookings">
                     <FaTicketAlt className="no-bookings-icon" />
                     <h3>No Bookings Yet</h3>
@@ -76,8 +101,8 @@ function Bookings() {
                         <div key={booking._id} className="booking-card">
                             <div className="booking-image">
                                 <img 
-                                    src={booking.event.image?.url || '/default-event-image.jpg'} 
-                                    alt={booking.event.title}
+                                    src={booking.event?.image?.url || '/default-event-image.jpg'} 
+                                    alt={booking.event?.title || 'Event'}
                                 />
                                 <div className={`status-badge ${booking.status}`}>
                                     {booking.status}
@@ -85,22 +110,22 @@ function Bookings() {
                             </div>
 
                             <div className="booking-content">
-                                <h3 className="event-title">{booking.event.title}</h3>
+                                <h3 className="event-title">{booking.event?.title || 'Event Not Available'}</h3>
                                 
                                 <div className="booking-info">
                                     <div className="info-item">
                                         <FaCalendarAlt className="icon" />
-                                        <span>{new Date(booking.event.date).toLocaleDateString('en-US', {
+                                        <span>{booking.event?.date ? new Date(booking.event.date).toLocaleDateString('en-US', {
                                             weekday: 'short',
                                             month: 'short',
                                             day: 'numeric',
                                             year: 'numeric'
-                                        })}</span>
+                                        }) : 'Date not available'}</span>
                                     </div>
                                     
                                     <div className="info-item">
                                         <FaMapMarkerAlt className="icon" />
-                                        <span>{booking.event.location.address || 'Location not specified'}</span>
+                                        <span>{booking.event?.location?.address || 'Location not specified'}</span>
                                     </div>
                                     
                                     <div className="info-item">
