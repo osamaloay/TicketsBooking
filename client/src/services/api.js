@@ -266,38 +266,29 @@ export const bookingService = {
 };
 
 export const eventService = {
-    // create new event by organizer done ✅
-    createEvent: async (formData) => {
+    // Get all approved events (public)
+    getAllApprovedEvents: async () => {
         try {
-            const response = await api.post('/events', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
+            const response = await api.get('/events');
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    },
+
+    // Search events (public)
+    searchEvents: async (searchParams) => {
+        try {
+            const response = await api.get('/events/search', {
+                params: searchParams
             });
             return response.data;
         } catch (error) {
             return handleError(error);
         }
     },
-    // get list of approved events done ✅
-    getAllApprovedEvents: async () => {
-        try {
-            const response = await api.get('/events/');
-            return response.data;
-        } catch (error) {
-            return handleError(error);
-        }
-    },
-    // get list of all events (admin only) done ✅
-    getAllEvents: async () => {
-        try {
-            const response = await api.get('/events/all');
-            return response.data;
-        } catch (error) {
-            return handleError(error);
-        }
-    },
-    // get details of an event by id done ✅
+
+    // Get event by ID (public)
     getEventById: async (id) => {
         try {
             const response = await api.get(`/events/${id}`);
@@ -306,30 +297,71 @@ export const eventService = {
             return handleError(error);
         }
     },
-    // update event details by admin or organizer done ✅
-    updateEvent: async (id, formData) => {
+
+    // Create new event (protected - Organizer only)
+    createEvent: async (eventData) => {
         try {
-            const response = await api.put(`/events/${id}`, formData, {
+            const response = await api.post('/events', eventData, {
                 headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
+                    'Content-Type': 'multipart/form-data',
+                },
             });
             return response.data;
         } catch (error) {
             return handleError(error);
         }
     },
-    // DELETE event by id (admin or organizer only ) done ✅ 
-    deleteEventById : async (id) => { 
-        try { 
-            const response = await api.delete(`/events/${id}`); 
-            return response.data; 
+
+    // Get all events (protected - Admin only)
+    getAllEvents: async () => {
+        try {
+            console.log('Fetching all events...');
+            const token = localStorage.getItem('token');
+            if (!token) {
+                throw new Error('Authentication required');
+            }
+
+            const response = await api.get('/events/all', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            console.log('Events fetched successfully:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('Error fetching all events:', error);
+            if (error.response?.status === 403) {
+                throw new Error('Access denied. Only System Admins can view all events.');
+            }
+            throw handleError(error);
         }
-        catch (error){
+    },
+
+    // Update event (protected - Organizer/Admin)
+    updateEvent: async (id, eventData) => {
+        try {
+            const response = await api.put(`/events/${id}`, eventData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+            return response.data;
+        } catch (error) {
             return handleError(error);
         }
-    } 
-}; 
+    },
+
+    // Delete event (protected - Organizer/Admin)
+    deleteEvent: async (id) => {
+        try {
+            const response = await api.delete(`/events/${id}`);
+            return response.data;
+        } catch (error) {
+            return handleError(error);
+        }
+    }
+};
 
 export const stripeService = {
     getPublicKey: async () => {

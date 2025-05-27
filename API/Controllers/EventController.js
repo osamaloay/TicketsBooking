@@ -63,13 +63,31 @@ const EventController = {
     },
     getAllEvents: async (req, res) => {
         try {
-            const events = await eventModel.find();
+            console.log('Fetching all events...');
+            console.log('User making request:', req.user);
+
+            if (!req.user || req.user.role !== 'System Admin') {
+                console.log('Unauthorized access attempt');
+                return res.status(403).json({ 
+                    message: 'Access denied. Only System Admins can view all events.' 
+                });
+            }
+
+            const events = await eventModel.find()
+                .populate('organizer', 'name email')
+                .sort({ createdAt: -1 });
+
+            console.log(`Found ${events.length} events`);
             res.status(200).json(events);
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            console.error('Error in getAllEvents:', error);
+            res.status(500).json({ 
+                message: 'Failed to fetch events',
+                error: error.message,
+                stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+            });
         }
-    } 
-    ,
+    },
     getEventById: async (req, res) => {
         try {
             const event = await eventModel.findById(req.params.id);
@@ -325,37 +343,98 @@ const EventController = {
     },
      searchEvents : async (req, res) => {
         try {
-            const { q } = req.query;
+            const { q, category, date, priceRange, sortBy } = req.query;
     
-            if (!q) {
-                return res.status(400).json({ 
-                    success: false, 
-                    message: 'Search query is required' 
-                });
-            }
-    
-            // Build search query for approved events only
+            // Build base query for approved events
             const searchQuery = {
-                $and: [
-                    { status: 'approved' },
-                    {
-                        $or: [
-                            { title: { $regex: q, $options: 'i' } },
-                            { description: { $regex: q, $options: 'i' } },
-                            { location: { $regex: q, $options: 'i' } }
-                        ]
-                    }
-                ]
+                status: 'approved'
             };
-    
-            const events = await Event.find(searchQuery)
+
+            // Add text search if query exists
+            if (q) {
+                searchQuery.$or = [
+                    { title: { $regex: q, $options: 'i' } },
+                    { description: { $regex: q, $options: 'i' } },
+                    { 'location.address': { $regex: q, $options: 'i' } }
+                ];
+            }
+
+            // Add category filter
+            if (category) {
+                searchQuery.category = category;
+            }
+
+            // Add date filter
+            if (date) {
+                const startDate = new Date(date);
+                const endDate = new Date(date);
+                endDate.setDate(endDate.getDate() + 1);
+                searchQuery.date = {
+                    $gte: startDate,
+                    $lt: endDate
+                };
+            }
+
+            // Add price range filter
+            if (priceRange) {
+                const [min, max] = priceRange.split('-').map(Number);
+                searchQuery.ticketPricing = {};
+                if (min) searchQuery.ticketPricing.$gte = min;
+                if (max) searchQuery.ticketPricing.$lte = max;
+            }
+
+            // Build sort options
+            let sortOptions = {};
+            if (sortBy) {
+                switch (sortBy) {
+                    case 'date_asc':
+                        sortOptions = { date: 1 };
+                        break;
+                    case 'date_desc':
+                        sortOptions = { date: -1 };
+                        break;
+                    case 'price_asc':
+                        sortOptions = { ticketPricing: 1 };
+                        break;
+                    case 'price_desc':
+                        sortOptions = { ticketPricing: -1 };
+                        break;
+                    default:
+                        sortOptions = { date: 1 };
+                }
+            } else {
+                sortOptions = { date: 1 }; // Default sort by date ascending
+            }
+
+            console.log('Search Query:', searchQuery);
+            console.log('Sort Options:', sortOptions);
+
+            const events = await eventModel.find(searchQuery)
                 .populate('organizer', 'name email')
-                .sort({ date: 1 });
+                .sort(sortOptions);
+
+            // Get unique categories for filter options
+            const categories = await eventModel.distinct('category', { status: 'approved' });
     
             res.status(200).json({
                 success: true,
                 count: events.length,
-                data: events
+                data: events,
+                filters: {
+                    categories,
+                    priceRanges: [
+                        { label: 'Under $50', value: '0-50' },
+                        { label: '$50 - $100', value: '50-100' },
+                        { label: '$100 - $200', value: '100-200' },
+                        { label: 'Over $200', value: '200-1000' }
+                    ],
+                    sortOptions: [
+                        { label: 'Date (Earliest)', value: 'date_asc' },
+                        { label: 'Date (Latest)', value: 'date_desc' },
+                        { label: 'Price (Low to High)', value: 'price_asc' },
+                        { label: 'Price (High to Low)', value: 'price_desc' }
+                    ]
+                }
             });
         } catch (error) {
             console.error('Search error:', error);

@@ -47,6 +47,22 @@ export const EventProvider = ({ children }) => {
         }
     };
 
+    const searchEvents = async (searchParams) => {
+        setLoading(true);
+        try {
+            const response = await eventService.searchEvents(searchParams);
+            setEvents(response.data);
+            setError(null);
+            return response;
+        } catch (error) {
+            console.error('Error searching events:', error);
+            setError(error.message);
+            toast.error('Failed to search events');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const fetchEventById = async (id) => {
         // Only set loading if we don't have the event data
         if (!currentEvent || currentEvent._id !== id) {
@@ -230,6 +246,7 @@ export const EventProvider = ({ children }) => {
                 fetchEventById,
                 filterEvents,
                 getFilteredEvents,
+                searchEvents,
                 // Protected methods
                 createEvent,
                 updateEvent,

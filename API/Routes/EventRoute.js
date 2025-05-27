@@ -5,18 +5,23 @@ const { upload } = require('../config/cloudinary');
 const authenticate = require('../Middleware/authMiddleware');
 const authorize = require('../Middleware/authorizeMiddleware');
 
+// Public routes
+router.get('/', EventController.getApprovedEvents);
+router.get('/search', EventController.searchEvents);
+
+// Protected routes
+// get all events (admin only)
+router.get('/all', authenticate, authorize('System Admin'), EventController.getAllEvents);
+
+// get event by id (public)
+router.get('/:id', EventController.getEventById);
+
 // create new event by Organizer
 router.post('/', authenticate, authorize('Organizer'), upload.single('image'), EventController.createEvent);
-// get all events
-router.get('/', EventController.getApprovedEvents);
-// get all events by organizer
-router.get('/all', authenticate, authorize('System Admin'), EventController.getAllEvents);
-// get details event by id
-router.get('/:id', EventController.getEventById);
-// search 
-router.get('/search',authenticate,authorize('Standard User'),EventController.searchEvents);
+
 // update an event by organizer or admin 
 router.put('/:id', authenticate, authorize('Organizer', 'System Admin'), upload.single('image'), EventController.updateEvent);
+
 // delete an event by Organizer or admin 
 router.delete('/:id', authenticate, authorize('Organizer', 'System Admin'), EventController.deleteEvent);
 
