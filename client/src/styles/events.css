@@ -46,3 +46,150 @@
 .info-section {
     margin: 2rem 0;
 }
+
+.events-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    position: relative;
+}
+
+.events-header h2 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: linear-gradient(270deg, #39ff14, #00ff88, #39ff14, #00ff88);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradient-shift 3s ease infinite;
+    display: inline-block;
+    position: relative;
+}
+
+.events-header h2::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(90deg, #39ff14, #00ff88);
+    border-radius: 2px;
+    animation: glow 2s ease-in-out infinite;
+}
+
+.events-header p {
+    font-size: 1.2rem;
+    color: var(--text-light);
+    opacity: 0.8;
+    margin-top: 1rem;
+}
+
+.events-header .emoji {
+    font-size: 1.2em;
+    margin: 0 0.3em;
+    display: inline-block;
+    animation: bounce 2s ease infinite;
+}
+
+.events-header .emoji:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.events-header .emoji:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes glow {
+    0%, 100% { 
+        box-shadow: 0 0 5px rgba(57, 255, 20, 0.5),
+                    0 0 10px rgba(57, 255, 20, 0.3),
+                    0 0 15px rgba(57, 255, 20, 0.1);
+    }
+    50% { 
+        box-shadow: 0 0 10px rgba(57, 255, 20, 0.8),
+                    0 0 20px rgba(57, 255, 20, 0.5),
+                    0 0 30px rgba(57, 255, 20, 0.3);
+    }
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+/* For the "Discover Events" section */
+.discover-events {
+    text-align: center;
+    margin: 4rem 0;
+    position: relative;
+}
+
+.discover-events h2 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    background: linear-gradient(270deg, #39ff14, #00ff88, #39ff14, #00ff88);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: gradient-shift 3s ease infinite;
+    display: inline-block;
+    position: relative;
+}
+
+.discover-events h2::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, #39ff14, #00ff88);
+    border-radius: 2px;
+    animation: glow 2s ease-in-out infinite;
+}
+
+.discover-events p {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    opacity: 0.8;
+    margin-top: 1rem;
+}
+
+.discover-events .emoji {
+    font-size: 1.2em;
+    margin: 0 0.3em;
+    display: inline-block;
+    animation: bounce 2s ease infinite;
+}
+
+.discover-events .emoji:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.discover-events .emoji:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@media (max-width: 768px) {
+    .events-header h2,
+    .discover-events h2 {
+        font-size: 2rem;
+    }
+
+    .events-header p,
+    .discover-events p {
+        font-size: 1rem;
+    }
+}

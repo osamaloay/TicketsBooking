@@ -1,28 +1,70 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1',
     withCredentials: true,
     headers: {
         'Content-Type': 'application/json'
-    },
-    withCredentials : true 
-    
+    }
 });
-    
+
+// Add request interceptor for debugging
+api.interceptors.request.use(
+    (config) => {
+        console.log('Request:', {
+            url: config.url,
+            method: config.method,
+            data: config.data,
+            headers: config.headers
+        });
+        return config;
+    },
+    (error) => {
+        console.error('Request Error:', error);
+        return Promise.reject(error);
+    }
+);
+
+// Add response interceptor for debugging
+api.interceptors.response.use(
+    (response) => {
+        console.log('Response:', {
+            status: response.status,
+            data: response.data
+        });
+        return response;
+    },
+    (error) => {
+        console.error('Response Error:', {
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message
+        });
+        return Promise.reject(error);
+    }
+);
+
 // handle error
 const handleError = (error) => {
     if (error.response) {
-      // Server responded with a status outside 2xx
-      return Promise.reject(error.response.data.message || 'Something went wrong');
+        // Server responded with a status outside 2xx
+        const message = error.response.data?.message || error.response.data?.error || 'Something went wrong';
+        console.error('API Error:', {
+            status: error.response.status,
+            message,
+            data: error.response.data
+        });
+        return Promise.reject(message);
     } else if (error.request) {
-      // No response received
-      return Promise.reject('No response from server');
+        // No response received
+        console.error('No Response Error:', error.request);
+        return Promise.reject('No response from server');
     } else {
-      // Other errors
-      return Promise.reject(error.message);
+        // Other errors
+        console.error('Other Error:', error.message);
+        return Promise.reject(error.message);
     }
-  };
+};
 
 // Auth services
 export const authService = {
@@ -195,9 +237,16 @@ export const userService = {
 export const bookingService = {
     createBooking: async (bookingData) => {
         try {
-            if (!bookingData.event || !bookingData.user || !bookingData.numberOfTickets) {
+            if (!bookingData.event || !bookingData.user || !bookingData.numberOfTickets || !bookingData.paymentMethodId) {
                 throw new Error('Missing required booking information');
             }
+
+            console.log('Creating booking with data:', {
+                event: bookingData.event,
+                user: bookingData.user,
+                numberOfTickets: bookingData.numberOfTickets,
+                paymentMethodId: bookingData.paymentMethodId
+            });
 
             const response = await api.post('/bookings/', {
                 event: bookingData.event,
@@ -212,11 +261,21 @@ export const bookingService = {
 
             return response.data;
         } catch (error) {
-            console.error('Booking creation error:', error);
+            console.error('Booking creation error:', {
+                error,
+                response: error.response?.data,
+                status: error.response?.status
+            });
+
             if (error.response?.data?.message) {
                 throw new Error(error.response.data.message);
+            } else if (error.response?.data?.error) {
+                throw new Error(error.response.data.error);
+            } else if (error.message) {
+                throw new Error(error.message);
+            } else {
+                throw new Error('Failed to create booking. Please try again.');
             }
-            throw new Error('Failed to create booking. Please try again.');
         }
     },
 
